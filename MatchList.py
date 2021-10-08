@@ -3,15 +3,17 @@ import nltk
 
 phonetic_multiplier = 1.0
 orthographic_multiplier = 1.5
+aoa_multiplier = 1.0
 
 class Match:
-    def __init__(self, init_matched_word, init_matched_phones, target_word, target_phones, delta):
+    def __init__(self, init_matched_word, init_matched_phones, target_word, target_phones, phonetic_delta, aoa_delta):
         self.matched_words = init_matched_word
         self.matched_phones = init_matched_phones
         self.target_word = target_word
         self.target_phones = target_phones
         self.starting_target_phones = target_phones
-        self.total_delta = delta
+        self.total_phonetic_delta = phonetic_delta
+        self.total_aoa_delta = aoa_delta
         self.is_finished = False
         self.search_failed = False # in case final phones can't be matched
         self.unmatched_phones = self.get_phones_unmatched()
@@ -49,7 +51,7 @@ class Match:
     def add_new_matched_phones(self, node, delta):
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
-        self.total_delta += delta
+        self.total_phonetic_delta += delta
         self.unmatched_phones = self.get_phones_unmatched()
         if not self.unmatched_phones:
             self.is_finished = True
@@ -60,7 +62,8 @@ class Match:
         #word_imageability
         #phonetic_similarity = aline.aline_score(self.matched_phones, self.starting_target_phones)
         return (orthographic_similarity * orthographic_multiplier +
-               self.total_delta * phonetic_multiplier)
+               self.total_phonetic_delta * phonetic_multiplier +
+               self.total_aoa_delta * aoa_multiplier)
 
 class MatchList:
     def __init__(self):
@@ -85,7 +88,7 @@ class MatchList:
 
     def remove_and_retrieve_unfinished_matches(self, N=10):
         temp_unfinished = []
-        for match in sorted(self.unfinished_matches, key=lambda x: x.total_delta)[:N]:
+        for match in sorted(self.unfinished_matches, key=lambda x: x.combined_metric_delta())[:N]:
             if match.is_fully_matched():
                 self.finished_matches.append(match)
             else:
@@ -93,5 +96,5 @@ class MatchList:
         self.unfinished_matches = []
         return temp_unfinished
 
-    def get_finished_matches(self):
-        return self.finished_matches
+    def get_finished_matches(self, N=10):
+        return self.finished_matches[:min(N, len(self.finished_matches))]

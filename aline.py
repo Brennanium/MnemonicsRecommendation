@@ -78,7 +78,8 @@ consonants = [
     "ɕ",
     "ɵ",
     "ʧ",
-    "ɭ"
+    "ɭ",
+    "ʑ"
 ]
 
 # Relevant features for comparing consonants and vowels
@@ -1276,6 +1277,34 @@ feature_matrix = {
         "lateral": "minus",
         "high": "mid",
         "back": "central",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ʑ": {
+        "place": "palato-alveolar",
+        "manner": "fricative",
+        "syllabic": "minus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "front",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ɯ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "high",
+        "back": "back",
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",

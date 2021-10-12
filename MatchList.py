@@ -6,14 +6,12 @@ orthographic_multiplier = 1.5
 aoa_multiplier = 1.0
 
 class Match:
-    def __init__(self, init_matched_word, init_matched_phones, target_word, target_phones, phonetic_delta, aoa_delta):
-        self.matched_words = init_matched_word
-        self.matched_phones = init_matched_phones
+    def __init__(self, target_word, target_phones):
+        self.matched_words = ''
+        self.matched_phones = ''
         self.target_word = target_word
         self.target_phones = target_phones
-        self.starting_target_phones = target_phones
-        self.total_phonetic_delta = phonetic_delta
-        self.total_aoa_delta = aoa_delta
+        self.delta = 0
         self.is_finished = False
         self.search_failed = False # in case final phones can't be matched
         self.unmatched_phones = self.get_phones_unmatched()
@@ -27,10 +25,13 @@ class Match:
 
     def print_match(self):
         print("Match: ", self.target_phones, "|",
-                self.matched_phones, "|", self.matched_words, "|", self.combined_metric_delta())
+                self.matched_phones, "|", self.matched_words, "|", self.delta)
 
 
     def get_phones_unmatched(self):
+        if self.matched_phones == '':
+            return self.target_phones
+
         alignment = aline.align(self.matched_phones, self.target_phones)
 
         # check for end of alignment
@@ -51,19 +52,10 @@ class Match:
     def add_new_matched_phones(self, node, delta):
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
-        self.total_phonetic_delta += delta
+        self.delta += delta
         self.unmatched_phones = self.get_phones_unmatched()
         if not self.unmatched_phones:
             self.is_finished = True
-
-    def combined_metric_delta(self):
-        #semantic_similarity
-        orthographic_similarity = nltk.edit_distance(self.target_word, self.matched_words)
-        #word_imageability
-        #phonetic_similarity = aline.aline_score(self.matched_phones, self.starting_target_phones)
-        return (orthographic_similarity * orthographic_multiplier +
-               self.total_phonetic_delta * phonetic_multiplier +
-               self.total_aoa_delta * aoa_multiplier)
 
 class MatchList:
     def __init__(self):
@@ -73,11 +65,11 @@ class MatchList:
     def print_matches(self):
         print("Unfinished Matches:")
         if self.unfinished_matches:
-            for match in sorted(self.unfinished_matches, key=lambda x: x.combined_metric_delta()):
+            for match in sorted(self.unfinished_matches, key=lambda x: x.delta):
                 match.print_match()
         print("Finished Matches:")
         if self.finished_matches:
-            for match in sorted(self.finished_matches, key=lambda x: x.combined_metric_delta()):
+            for match in sorted(self.finished_matches, key=lambda x: x.delta):
                 match.print_match()
 
     def add_match(self, match):
@@ -88,7 +80,7 @@ class MatchList:
 
     def remove_and_retrieve_unfinished_matches(self, N=10):
         temp_unfinished = []
-        for match in sorted(self.unfinished_matches, key=lambda x: x.combined_metric_delta())[:N]:
+        for match in sorted(self.unfinished_matches, key=lambda x: x.delta)[:N]:
             if match.is_fully_matched():
                 self.finished_matches.append(match)
             else:

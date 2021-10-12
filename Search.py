@@ -1,11 +1,6 @@
-import subprocess
-from DictionaryTrie import DictTrie
-import DictionaryTrie as dt
-import aline
+from PhoneTrie import PhoneTrie
 import MatchList
 import copy
-from datetime import datetime
-
 supported_languages = {'en', 'ja', 'de', 'fr'}
 
 class WWUTransphoner:
@@ -14,8 +9,8 @@ class WWUTransphoner:
         if input_language and target_language not in supported_languages:
             raise Exception("Must choose from supported languages:", supported_languages)
         else:
-            self.target_trie = DictTrie(target_language)
-            self.input_trie = DictTrie(input_language)
+            self.target_trie = PhoneTrie(target_language)
+            self.input_trie = PhoneTrie(input_language)
 
     def __get_input_word_phones(self, input_word):
         input_node = self.input_trie.search(input_word)
@@ -27,38 +22,35 @@ class WWUTransphoner:
     def get_mnemonics(self, input_word, N=5):
         input_phones = self.__get_input_word_phones(input_word)
         print("Found phones for word:", input_phones)
-        matches = self.target_trie.find_phonetic_match(input_phones, N)
+        starting_match = MatchList.Match(input_word, input_phones)
         match_list = MatchList.MatchList()
-        for delta, node in matches[:N]:
-            match = MatchList.Match(node.word, node.phones,
-                                      input_word, input_phones, -delta, node.aoa)
-            match_list.add_match(match)
+        match_list.add_match(starting_match)
 
         working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
         while working_matches:
             for match in working_matches:
-                unmatched_phones = match.get_phones_unmatched()
-                if unmatched_phones: # sometimes a match will be fully matched after the initial guess
-                    potential_matches = self.target_trie.find_phonetic_match(unmatched_phones, N)
-                    if potential_matches: # sometimes a match wont find anything to match
-                        for i in range(0, min(N, len(potential_matches))):
-                            new_match = copy.deepcopy(match)
-                            new_match.add_new_matched_phones(potential_matches[i][1], -potential_matches[i][0])
-                            match_list.add_match(new_match)
-                    else:
-                        match.mark_search_failed()
-                        match_list.add_match(match)
-                working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
+                potential_matches = self.target_trie.find_phonetic_match(match, N)
+                if potential_matches: # sometimes a match wont find anything to match
+                    for i in range(0, min(N, len(potential_matches))):
+                        new_match = copy.deepcopy(match)
+                        new_match.add_new_matched_phones(potential_matches[i][1], -potential_matches[i][0])
+                        match_list.add_match(new_match)
+                else:
+                    match.mark_search_failed()
+                    match_list.add_match(match)
+            working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
 
+        for m in match_list.get_finished_matches(N):
+            m.print_match()
         return match_list.get_finished_matches(N)
 
-start = datetime.now()
+    # Marks a word in the target trie as unusuable, so Subsequent
+    # mnemonics will not contain it again
+    def mark_ignored(self, word):
+        node = self.target_trie.search(word)
+        if node:
+            node.ignored = True
+
+
 wwwt = WWUTransphoner('ja', 'en')
-print("Transphoner Loaded")
-end = datetime.now()
-print("first phase:", end - start)
-matches = wwwt.get_mnemonics("準備完了ログ記録")
-end2 = datetime.now()
-print("second phase:", end2 - end)
-for m in matches:
-    print(m.matched_words)
+matches = wwwt.get_mnemonics("官僚主義者")

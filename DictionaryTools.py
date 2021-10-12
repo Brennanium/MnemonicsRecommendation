@@ -1,10 +1,13 @@
-from DictionaryTrie import DictTrie
+from PhoneTrie import PhoneTrie
+import os
+import csv
+import sqlite3 as sl
 
-en_trie = DictTrie('en')
-
-file = open('dictionaries/english/lemmas_no_hyphens.csv')
-new_file = open('dictionaries/english/lemmas_no_hyphens_with_ipa.csv', "w+")
+file = open('dictionaries/german/phones_de.csv')
+newfile = open('dictionaries/german/phones_de_new.csv', 'w')
 for line in file:
-    node = en_trie.search(line.strip())
-    if node:
-        new_file.write(node.word + "\t" + node.phones + "\n")
+    pos = line.find(',')
+    newline = line[:pos]
+    newline = newline + ';' + line[pos+1:-1].replace('\"', '').replace(' ', '') + ';0\n'
+    newfile.write(newline)
+newfile.close()

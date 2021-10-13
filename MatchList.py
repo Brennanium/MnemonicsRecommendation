@@ -1,23 +1,29 @@
 import aline
 import nltk
+from math import trunc
+import SimilarityFunctions as sf
 
 phonetic_multiplier = 1.0
 orthographic_multiplier = 1.5
+semantic_multiplier = 30
 aoa_multiplier = 1.0
 
 class Match:
-    def __init__(self, target_word, target_phones):
+    def __init__(self, input_node, translation):
         self.matched_words = ''
         self.matched_phones = ''
-        self.target_word = target_word
-        self.target_phones = target_phones
+        self.target_word = input_node.word
+        self.target_phones = input_node.phones
+        self.target_definitions = input_node.definitions
+        self.translation = translation
         self.delta = 0
         self.is_finished = False
         self.search_failed = False # in case final phones can't be matched
-        self.unmatched_phones = self.get_phones_unmatched()
+        self.unmatched_phones = input_node.phones
 
     def is_fully_matched(self):
         return self.is_finished
+
 
     def mark_search_failed(self):
         self.search_failed = True
@@ -49,10 +55,12 @@ class Match:
 
             return self.target_phones[last_idx_aligned:]
 
-    def add_new_matched_phones(self, node, delta):
+    def add_new_matched_phones(self, node, phonetic_delta):
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
-        self.delta += delta
+        self.delta += phonetic_delta
+        self.delta += sf.get_distance(node.word, self.translation) * semantic_multiplier
+        self.delta += sf.get_aoa(node.word)
         self.unmatched_phones = self.get_phones_unmatched()
         if not self.unmatched_phones:
             self.is_finished = True

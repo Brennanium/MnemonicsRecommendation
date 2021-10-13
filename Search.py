@@ -1,15 +1,18 @@
 from PhoneTrie import PhoneTrie
 import MatchList
 import copy
+import tracemalloc
+from gensim.models import KeyedVectors
+from gensim import models
 supported_languages = {'en', 'ja', 'de', 'fr'}
 
 class WWUTransphoner:
 
-    def __init__(self, input_language, target_language):
-        if input_language and target_language not in supported_languages:
+    def __init__(self, input_language):
+        if input_language not in supported_languages:
             raise Exception("Must choose from supported languages:", supported_languages)
         else:
-            self.target_trie = PhoneTrie(target_language)
+            self.target_trie = PhoneTrie('en')
             self.input_trie = PhoneTrie(input_language)
 
     def __get_input_word_phones(self, input_word):
@@ -19,10 +22,10 @@ class WWUTransphoner:
         else:
             raise Exception("Can't find phones for input word:", input_word)
 
-    def get_mnemonics(self, input_word, N=5):
-        input_phones = self.__get_input_word_phones(input_word)
-        print("Found phones for word:", input_phones)
-        starting_match = MatchList.Match(input_word, input_phones)
+    def get_mnemonics(self, input_word, translation, N=5):
+        input_node = self.input_trie.search(input_word)
+        print("Found phones for word:", input_node.phones)
+        starting_match = MatchList.Match(input_node, translation)
         match_list = MatchList.MatchList()
         match_list.add_match(starting_match)
 
@@ -52,5 +55,5 @@ class WWUTransphoner:
             node.ignored = True
 
 
-wwwt = WWUTransphoner('ja', 'en')
-matches = wwwt.get_mnemonics("官僚主義者")
+wwwt = WWUTransphoner('de')
+matches = wwwt.get_mnemonics("tropisch", "tropical", 10)

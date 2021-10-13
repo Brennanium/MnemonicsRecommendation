@@ -47,6 +47,7 @@ class PhoneTrie:
         self.root = PhoneNode("")
         self.num_nodes = 0
         self.depth = 0
+        self.lookup = {}
         self.n_best_list = [] # heap
         if language_code == 'de': # german
             self.insert_dictionary('dictionaries/german/phones_de.csv')
@@ -96,10 +97,16 @@ class PhoneTrie:
         node.aoa = aoa
         self.num_nodes = self.num_nodes + 1
 
+
     def search(self, word):
         return self.__search(self.root, word)
 
     def __search(self, node, word):
+        if node.is_word:
+            try:
+                node.aoa = self.lookup[node.word]
+            except:
+                node.aoa = 25
         if node.is_word and node.word == word:
             return node
         else:

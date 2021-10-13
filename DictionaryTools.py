@@ -4,7 +4,7 @@ import csv
 import sqlite3 as sl
 
 file = open('dictionaries/german/phones_de.csv')
-newfile = open('dictionaries/german/phones_de_new.csv', 'w')
+newfile = open('dictionaries/german/phones_de_new.csv', 'w+')
 for line in file:
     pos = line.find(',')
     newline = line[:pos]

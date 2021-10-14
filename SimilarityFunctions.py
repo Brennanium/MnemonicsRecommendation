@@ -9,11 +9,13 @@ for line in file:
     aoa_lookup[chunks[0]] = chunks[1]
 
 def get_distance(word1, word2, multiplier=1.0):
-    word1_embedding = model[word1]
-    word2_embedding = model[word2]
-    dist = distance.cosine(word1_embedding, word2_embedding) * multiplier
-    return dist
-
+    try:
+        word1_embedding = model[word1]
+        word2_embedding = model[word2]
+        dist = distance.cosine(word1_embedding, word2_embedding) * multiplier
+        return dist
+    except:
+        return 20 * multiplier
 
 def get_aoa(word, aoa_multiplier=2.0):
     try:

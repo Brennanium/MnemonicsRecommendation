@@ -91,7 +91,7 @@ class PhoneTrie:
             node = node.next
 
         node.is_word = True
-        node.word = word
+        node.word = word.lower()
         node.phones = phones
         node.definitions = definitions
         node.aoa = aoa

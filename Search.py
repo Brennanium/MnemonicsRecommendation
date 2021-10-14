@@ -1,9 +1,9 @@
 from PhoneTrie import PhoneTrie
 import MatchList
 import copy
-import tracemalloc
 from gensim.models import KeyedVectors
 from gensim import models
+from datetime import datetime
 supported_languages = {'en', 'ja', 'de', 'fr'}
 
 class WWUTransphoner:
@@ -15,16 +15,10 @@ class WWUTransphoner:
             self.target_trie = PhoneTrie('en')
             self.input_trie = PhoneTrie(input_language)
 
-    def __get_input_word_phones(self, input_word):
-        input_node = self.input_trie.search(input_word)
-        if input_node:
-            return input_node.phones
-        else:
+    def get_mnemonics(self, input_word, translation, N=10):
+        input_node = self.input_trie.search(input_word.lower())
+        if not input_node:
             raise Exception("Can't find phones for input word:", input_word)
-
-    def get_mnemonics(self, input_word, translation, N=5):
-        input_node = self.input_trie.search(input_word)
-        print("Found phones for word:", input_node.phones)
         starting_match = MatchList.Match(input_node, translation)
         match_list = MatchList.MatchList()
         match_list.add_match(starting_match)
@@ -43,9 +37,7 @@ class WWUTransphoner:
                     match_list.add_match(match)
             working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
 
-        for m in match_list.get_finished_matches(N):
-            m.print_match()
-        return match_list.get_finished_matches(N)
+        return match_list.get_finished_matches()
 
     # Marks a word in the target trie as unusuable, so Subsequent
     # mnemonics will not contain it again
@@ -56,4 +48,7 @@ class WWUTransphoner:
 
 
 wwwt = WWUTransphoner('de')
-matches = wwwt.get_mnemonics("tropisch", "tropical", 10)
+#matches = wwwt.get_mnemonics("tropisch", "tropical")
+matches = wwwt.get_mnemonics("Urlauben", "vacations")
+for m in matches:
+    m.print_match()

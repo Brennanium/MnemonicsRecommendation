@@ -5,8 +5,8 @@ import SimilarityFunctions as sf
 
 phonetic_multiplier = 1.0
 orthographic_multiplier = 1.5
-semantic_multiplier = 30
-aoa_multiplier = 1.0
+semantic_multiplier = 50
+aoa_multiplier = 3.0
 
 class Match:
     def __init__(self, input_node, translation):
@@ -31,7 +31,8 @@ class Match:
 
     def print_match(self):
         print("Match: ", self.target_phones, "|",
-                self.matched_phones, "|", self.matched_words, "|", self.delta)
+                self.matched_phones, "|", self.matched_words, "|",
+                self.delta, "|", self.search_failed)
 
 
     def get_phones_unmatched(self):
@@ -50,17 +51,17 @@ class Match:
 
         if last_idx_aligned == len_alignment:
             self.is_finished = True
+            self.delta += nltk.edit_distance(self.matched_words, self.target_word)
             return None
         else:
-
             return self.target_phones[last_idx_aligned:]
 
     def add_new_matched_phones(self, node, phonetic_delta):
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
-        self.delta += phonetic_delta
-        self.delta += sf.get_distance(node.word, self.translation) * semantic_multiplier
-        self.delta += sf.get_aoa(node.word)
+        self.delta += phonetic_delta * phonetic_multiplier
+        self.delta += sf.get_distance(node.word, self.translation, semantic_multiplier)
+        self.delta += sf.get_aoa(node.word, aoa_multiplier)
         self.unmatched_phones = self.get_phones_unmatched()
         if not self.unmatched_phones:
             self.is_finished = True
@@ -89,7 +90,7 @@ class MatchList:
     def remove_and_retrieve_unfinished_matches(self, N=10):
         temp_unfinished = []
         for match in sorted(self.unfinished_matches, key=lambda x: x.delta)[:N]:
-            if match.is_fully_matched():
+            if match.is_fully_matched() and not match.search_failed:
                 self.finished_matches.append(match)
             else:
                 temp_unfinished.append(match)
@@ -97,4 +98,4 @@ class MatchList:
         return temp_unfinished
 
     def get_finished_matches(self, N=10):
-        return self.finished_matches[:min(N, len(self.finished_matches))]
+        return self.finished_matches

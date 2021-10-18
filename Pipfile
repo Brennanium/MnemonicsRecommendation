@@ -7,6 +7,7 @@ name = "pypi"
 nltk = "*"
 gensim = "*"
 torch = "*"
+django = "~=3.2.8"
 
 [dev-packages]
 

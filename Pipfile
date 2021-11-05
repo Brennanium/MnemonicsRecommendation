@@ -8,6 +8,8 @@ nltk = "*"
 gensim = "*"
 torch = "*"
 django = "~=3.2.8"
+transformers = "*"
+happytransformer = "*"
 
 [dev-packages]
 

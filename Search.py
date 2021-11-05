@@ -1,4 +1,5 @@
 from PhoneTrie import PhoneTrie
+import SentenceGen
 import MatchList
 import copy
 from gensim.models import KeyedVectors
@@ -14,6 +15,13 @@ class WWUTransphoner:
         else:
             self.target_trie = PhoneTrie('en')
             self.input_trie = PhoneTrie(input_language)
+
+    def set_multipliers(self, imageability=1.0, orthographic=1, phonetic=1.0, semantic=50):
+        MatchList.aoa_multiplier = imageability
+        MatchList.phonetic_multiplier = phonetic
+        MatchList.semantic_multiplier = semantic
+        MatchList.orthographic_multiplier = orthographic
+
 
     def get_mnemonics(self, input_word, translation, N=10):
         input_node = self.input_trie.search(input_word.lower())
@@ -37,7 +45,11 @@ class WWUTransphoner:
                     match_list.add_match(match)
             working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
 
-        return match_list.get_finished_matches()
+        final_mnemonics = []
+        for m in match_list.get_finished_matches():
+            final_mnemonics.append(m.matched_words)
+
+        return final_mnemonics
 
     # Marks a word in the target trie as unusuable, so Subsequent
     # mnemonics will not contain it again
@@ -46,9 +58,9 @@ class WWUTransphoner:
         if node:
             node.ignored = True
 
-
-wwwt = WWUTransphoner('de')
-#matches = wwwt.get_mnemonics("tropisch", "tropical")
-matches = wwwt.get_mnemonics("Urlauben", "vacations")
-for m in matches:
-    m.print_match()
+wwut = WWUTransphoner('de')
+a = wwut.get_mnemonics('tropisch', 'tropical')
+for c in a:
+    print(c)
+for b in SentenceGen.gen_sentence(a):
+    print(b)

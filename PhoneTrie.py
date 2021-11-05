@@ -4,11 +4,10 @@ import aline
 import heapq
 import math
 
-non_speech_marks = ['ˈ', '.', "'" ,'ˌ' ,'ː', '̯', ':', '-', '-', '|', '|', '/', 'ᵝ'
+non_speech_marks = ['ˈ', '.', "'" ,'ˌ' ,'ː', '̯', ':', '-', '-', '|', '|', '/', 'ᵝ',
                     'ᵊ', '\u200b', 'ʲ', '˞', '̈', '—', 'ʰ', '̶', ',', '̆', '\xa0',
                     '\u2009', 'ˑ',  '·', 'ʷ', '̥', 'ˡ', '`', '̝', '̙', '/', '\\',
                     '̃', '(', ')', '̩', '͡', '\u200c', '(', '̪', '̚', 'ᵊ', ' ']
-
 invalid_symbols = {'.'}
 
 def is_valid_word(word):
@@ -36,7 +35,7 @@ class PhoneNode:
         self.definitions = None
         self.next = None # used for when words collide, aka 2 words same pronunciation
 
-    # Necessiary to have this for when nodes get sorted in the heap because if two
+    # Necessiary to have this for when nodes get sorted in a heap because if two
     # nodes have the same delta the heap will check the second value in the tuple
     # which is the node
     def __lt__(self, other):
@@ -47,20 +46,17 @@ class PhoneTrie:
         self.root = PhoneNode("")
         self.num_nodes = 0
         self.depth = 0
-        self.lookup = {}
         self.n_best_list = [] # heap
         if language_code == 'de': # german
             self.insert_dictionary('dictionaries/german/phones_de.csv')
         elif language_code == 'en': # english
-            self.insert_dictionary('dictionaries/english/phones_and_definitions_en_US.csv')
+            self.insert_dictionary('dictionaries/english/top_8000_words.csv')
         elif language_code == 'fr': # french
             self.insert_dictionary()
         elif language_code == 'zh': # mandarin
             self.insert_dictionary()
         elif language_code == 'ja': # japanese
             self.insert_dictionary('dictionaries/japanese/phones_ja.csv')
-        elif language_code == 'test':
-            self.insert_dictionary('dictionaries/english/phones_test_US.csv')
         else:
             raise Exception("Language " + language_code + " is not supported. Currently languages de, fr, zh, and ja are supported.")
 
@@ -69,7 +65,7 @@ class PhoneTrie:
     # starting with the first word with the pronunciation entered.
     # Subsequent nodes with the same pronunciation can be found using
     # node.next values
-    def insert(self, word, phones, aoa, definitions):
+    def insert(self, word, phones, aoa):
         if ' ' in phones or ' ' in word or not is_valid_word(phones):
             return
         node = self.root
@@ -93,7 +89,6 @@ class PhoneTrie:
         node.is_word = True
         node.word = word.lower()
         node.phones = phones
-        node.definitions = definitions
         node.aoa = aoa
         self.num_nodes = self.num_nodes + 1
 
@@ -102,11 +97,6 @@ class PhoneTrie:
         return self.__search(self.root, word)
 
     def __search(self, node, word):
-        if node.is_word:
-            try:
-                node.aoa = self.lookup[node.word]
-            except:
-                node.aoa = 25
         if node.is_word and node.word == word:
             return node
         else:
@@ -148,12 +138,10 @@ class PhoneTrie:
     def insert_dictionary(self, path_to_csv_dict):
         with open(path_to_csv_dict, mode = 'r') as dataFile:
             for row in dataFile:
-                parts = row[:-1].split(';')
-                for pronunciation in parts[1].split(','):
-                    definitions = None
-                    if len(parts) > 3:
-                        definitions = parts[3:]
-                    self.insert(parts[0], remove_stress_marks(pronunciation), int(parts[2]), definitions)
+                cols = row.split(';')
+                for pronunciation in cols[1].split(','):
+                    self.insert(cols[0], remove_stress_marks(pronunciation), float(cols[2]))
+
 
     # won't necessiarly print in what you would consider alphabetical order
     def print_trie(self):
@@ -201,19 +189,3 @@ class PhoneTrie:
             for c in node.children:
                 self.__find_phonetic_match(node.children[c], phones[1:], phonetic_delta)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-a = 0

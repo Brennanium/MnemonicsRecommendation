@@ -1,12 +1,27 @@
 import aline
 import nltk
 from math import trunc
-import SimilarityFunctions as sf
+import SentenceGen as sg
+from gensim.models.keyedvectors import KeyedVectors
+from scipy.spatial import distance
 
-phonetic_multiplier = 1.0
-orthographic_multiplier = 1.5
+phonetic_multiplier = 5.0
+orthographic_multiplier = 3
 semantic_multiplier = 50
 aoa_multiplier = 3.0
+
+
+model = KeyedVectors.load_word2vec_format("word_embeddings/english/glove.6B.50d.txt", binary=False)
+def semantic_distance(word1, word2, multiplier=1.0):
+    try:
+        word1_embedding = model[word1]
+        word2_embedding = model[word2]
+        dist = distance.cosine(word1_embedding, word2_embedding) * multiplier
+        return dist
+    except:
+        return 20 * multiplier
+
+
 
 class Match:
     def __init__(self, input_node, translation):
@@ -32,7 +47,7 @@ class Match:
     def print_match(self):
         print("Match: ", self.target_phones, "|",
                 self.matched_phones, "|", self.matched_words, "|",
-                self.delta, "|", self.search_failed)
+                sg.gen_sentence(self.matched_words))
 
 
     def get_phones_unmatched(self):
@@ -51,7 +66,8 @@ class Match:
 
         if last_idx_aligned == len_alignment:
             self.is_finished = True
-            self.delta += nltk.edit_distance(self.matched_words, self.target_word)
+            # add on the orthographc distance to the delta once all phones are matched
+            self.delta += nltk.edit_distance(self.matched_words, self.target_word) * orthographic_multiplier
             return None
         else:
             return self.target_phones[last_idx_aligned:]
@@ -60,11 +76,12 @@ class Match:
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
         self.delta += phonetic_delta * phonetic_multiplier
-        self.delta += sf.get_distance(node.word, self.translation, semantic_multiplier)
-        self.delta += sf.get_aoa(node.word, aoa_multiplier)
+        self.delta += semantic_distance(node.word, self.translation, semantic_multiplier)
+        self.delta += node.aoa * aoa_multiplier
         self.unmatched_phones = self.get_phones_unmatched()
         if not self.unmatched_phones:
             self.is_finished = True
+            self.matched_words = self.matched_words.strip()
 
 class MatchList:
     def __init__(self):
@@ -98,4 +115,4 @@ class MatchList:
         return temp_unfinished
 
     def get_finished_matches(self, N=10):
-        return self.finished_matches
+        return sorted(self.finished_matches, key=lambda x: x.delta)[:N]

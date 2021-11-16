@@ -7,9 +7,11 @@ name = "pypi"
 nltk = "*"
 gensim = "*"
 torch = "*"
-django = "~=3.2.8"
 transformers = "*"
 happytransformer = "*"
+flask = "*"
+python-dotenv = "*"
+flask-wtf = "*"
 
 [dev-packages]
 

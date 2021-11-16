@@ -41,3 +41,9 @@ https://www.nltk.org/_modules/nltk/metrics/aline.html
 We modified it to have more phones that it can compare, and can
 handle extra cases where different dictionaries use different
 character encodings for the same phone
+
+Website Usage:
+```
+$ cd MnemonicsRecommendation
+$ flask run
+```

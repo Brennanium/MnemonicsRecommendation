@@ -1,0 +1,21 @@
+
+<table id="result_table" class="table table-hover">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Matches</th>
+            <th scope="col">Sentences</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if words %}
+                {% for word in words %}
+                <tr class='clickable-row'>
+                    <th scope="row">{{ (words.index(word)+1) }}</th>
+                    <td>{{word}}</td>
+                    <td>{{ sentences[words.index(word)] }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>

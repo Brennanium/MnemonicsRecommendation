@@ -12,6 +12,8 @@ happytransformer = "*"
 flask = "*"
 python-dotenv = "*"
 flask-wtf = "*"
+flask-bootstrap = "*"
+config = "*"
 
 [dev-packages]
 

@@ -1,7 +1,6 @@
 import aline
 import nltk
 from math import trunc
-import SentenceGen as sg
 from gensim.models.keyedvectors import KeyedVectors
 from scipy.spatial import distance
 
@@ -43,12 +42,6 @@ class Match:
     def mark_search_failed(self):
         self.search_failed = True
         self.is_finished = True
-
-    def print_match(self):
-        print("Match: ", self.target_phones, "|",
-                self.matched_phones, "|", self.matched_words, "|",
-                sg.gen_sentence(self.matched_words))
-
 
     def get_phones_unmatched(self):
         if self.matched_phones == '':

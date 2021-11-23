@@ -35,16 +35,16 @@ $ flask run
 
 
 Word2Vec embeddings from:
-https://wikipedia2vec.github.io/wikipedia2vec/pretrained/ [Apache License](https://www.apache.org/licenses/LICENSE-2.0)
+[wikipedia2vec](https://wikipedia2vec.github.io/wikipedia2vec/pretrained/) ([Apache License](https://www.apache.org/licenses/LICENSE-2.0))
 and
-https://github.com/stanfordnlp/GloVe [Apache License](https://www.apache.org/licenses/LICENSE-2.0)
+[Global Vectors for Word Representation](https://github.com/stanfordnlp/GloVe) ([Apache License](https://www.apache.org/licenses/LICENSE-2.0))
 
 Phonetic Lists from:
 https://github.com/open-dict-data/ipa-dict#csv
-  French lists built from (https://github.com/dohliam/qc-ipa) [MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE)
-  Japanese lists built from (https://www.edrdg.org/jmdict/edict.html) [CC BY-SA 3.0](https://creativecommons.org/licenses/by/4.0/)
-  English lists built from (https://github.com/lingz/cmudict-ipa) [MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE)
-  German lists built ffrom (https://github.com/kdelaney/germanipa)
+  French lists built from [gc-ipa](https://github.com/dohliam/qc-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
+  Japanese lists built from [edict](https://www.edrdg.org/jmdict/edict.html) ([CC BY-SA 3.0](https://creativecommons.org/licenses/by/4.0/))
+  English lists built from [cmudict-ipa](https://github.com/lingz/cmudict-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
+  German lists built from [germanipa](https://github.com/kdelaney/germanipa)
 
 English age of aquisition ratings from Kuperman et all
 

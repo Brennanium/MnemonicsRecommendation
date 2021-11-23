@@ -4,7 +4,8 @@ Main feature of this repo is the WWUTransphoner class found in the Search file.
 There are 5 languages this product is supposed to support {'de', 'zh', 'fr', 'ja', 'en'}
 Currently we can only produce sentences useful for english speakers, meaning our system can produce mnemonic phrases/sentences for learning words in German, Japanese and English.
 
-Example usage:
+# Example usage:
+***
 ```python
 wwut = WWUTransphoner('de") # can create mnemonics for german words
 
@@ -27,7 +28,8 @@ And sentences will contain
 * 'frantic and desperately desperate to find his true push, and i 'd do anything for him'
 * 'beneath his hands and my two fingers trap ash's fingers'
 
-Website Usage:
+#Website Usage:
+***
 ```
 $ cd MnemonicsRecommendation
 $ flask run
@@ -57,7 +59,8 @@ character encodings for the same phone
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Citations:
+# Citations:
+***
 Bird, Steven, Edward Loper and Ewan Klein (2009).
 Natural Language Processing with Python.  O'Reilly Media Inc.
 

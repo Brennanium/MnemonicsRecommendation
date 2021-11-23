@@ -1,3 +1,49 @@
+# Origonal algorithm by Grzegorz Kondrak, modified by the
+# WWU Mnemonics Recommendation Team to support additional
+# phones when computing the delta, and aligning.
+# Changes in the code are noted above the additions.
+#
+#
+#
+# Natural Language Toolkit: ALINE
+#
+# Copyright (C) 2001-2021 NLTK Project
+# Author: Greg Kondrak <gkondrak@ualberta.ca>
+#         Geoff Bacon <bacon@berkeley.edu> (Python port)
+# URL: <https://www.nltk.org/>
+# For license information, see LICENSE.TXT
+
+"""
+ALINE
+https://webdocs.cs.ualberta.ca/~kondrak/
+Copyright 2002 by Grzegorz Kondrak.
+
+ALINE is an algorithm for aligning phonetic sequences, described in [1].
+This module is a port of Kondrak's (2002) ALINE. It provides functions for
+phonetic sequence alignment and similarity analysis. These are useful in
+historical linguistics, sociolinguistics and synchronic phonology.
+
+ALINE has parameters that can be tuned for desired output. These parameters are:
+- C_skip, C_sub, C_exp, C_vwl
+- Salience weights
+- Segmental features
+
+In this implementation, some parameters have been changed from their default
+values as described in [1], in order to replicate published results. All changes
+are noted in comments.
+
+Example usage
+-------------
+
+# Get optimal alignment of two phonetic sequences
+
+>>> align('θin', 'tenwis') # doctest: +SKIP
+[[('θ', 't'), ('i', 'e'), ('n', 'n'), ('-', 'w'), ('-', 'i'), ('-', 's')]]
+
+[1] G. Kondrak. Algorithms for Language Reconstruction. PhD dissertation,
+University of Toronto.
+"""
+
 try:
     import numpy as np
 except ImportError:
@@ -30,7 +76,6 @@ consonants = [
     "n",
     "p",
     "q",
-    "Q",
     "r",
     "s",
     "t",
@@ -75,12 +120,14 @@ consonants = [
     "χ",
     "ʐ",
     "w",
+    # below are the additional phones added, not from origonial algorithm
     "ɡ",
     "ɕ",
     "ɵ",
     "ʧ",
     "ɭ",
-    "ʑ"
+    "ʑ",
+    "Q"
 ]
 
 # Relevant features for comparing consonants and vowels
@@ -258,16 +305,6 @@ feature_matrix = {
         "aspirated": "minus",
     },
     "g": {
-        "place": "velar",
-        "manner": "stop",
-        "syllabic": "minus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "aspirated": "minus",
-    },
-    "ɡ": {
         "place": "velar",
         "manner": "stop",
         "syllabic": "minus",
@@ -747,16 +784,6 @@ feature_matrix = {
         "lateral": "minus",
         "aspirated": "minus",
     },
-    "ɭ": {
-        "place": "retroflex",
-        "manner": "approximant",
-        "syllabic": "minus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "plus",
-        "aspirated": "minus",
-    },
     "l": {
         "place": "alveolar",
         "manner": "approximant",
@@ -792,35 +819,7 @@ feature_matrix = {
         "long": "minus",
         "aspirated": "minus",
     },
-    "ĭ": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "high",
-        "back": "front",
-        "round": "minus",
-        "long": "plus",
-        "aspirated": "minus",
-    },
     "y": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "high",
-        "back": "front",
-        "round": "plus",
-        "long": "minus",
-        "aspirated": "minus",
-    },
-    "ʏ": {
         "place": "vowel",
         "manner": "vowel2",
         "syllabic": "plus",
@@ -988,48 +987,6 @@ feature_matrix = {
         "long": "minus",
         "aspirated": "minus",
     },
-    "ǝ": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "mid",
-        "back": "central",
-        "round": "minus",
-        "long": "minus",
-        "aspirated": "minus",
-    },
-    "ɘ": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "mid",
-        "back": "central",
-        "round": "minus",
-        "long": "minus",
-        "aspirated": "minus",
-    },
-    "u": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "high",
-        "back": "back",
-        "round": "plus",
-        "long": "minus",
-        "aspirated": "minus",
-    },
     "U": {
         "place": "vowel",
         "manner": "vowel2",
@@ -1056,20 +1013,6 @@ feature_matrix = {
         "back": "back",
         "round": "plus",
         "long": "minus",
-        "aspirated": "minus",
-    },
-    "ŏ": {
-        "place": "vowel",
-        "manner": "vowel2",
-        "syllabic": "plus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "mid",
-        "back": "back",
-        "round": "plus",
-        "long": "plus",
         "aspirated": "minus",
     },
     "O": {
@@ -1125,6 +1068,111 @@ feature_matrix = {
         "high": "high",
         "back": "front",
         "round": "minus",
+        "long": "plus",
+        "aspirated": "minus",
+    },
+    # Below are the additional entries not in origonial algorithm
+    "ɡ": {
+        "place": "velar",
+        "manner": "stop",
+        "syllabic": "minus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "aspirated": "minus",
+    },
+    "ɭ": {
+        "place": "retroflex",
+        "manner": "approximant",
+        "syllabic": "minus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "plus",
+        "aspirated": "minus",
+    },
+    "ĭ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "high",
+        "back": "front",
+        "round": "minus",
+        "long": "plus",
+        "aspirated": "minus",
+    },
+    "ʏ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "high",
+        "back": "front",
+        "round": "plus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ǝ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "central",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ɘ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "central",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "u": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "high",
+        "back": "back",
+        "round": "plus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ŏ": {
+        "place": "vowel",
+        "manner": "vowel2",
+        "syllabic": "plus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "back",
+        "round": "plus",
         "long": "plus",
         "aspirated": "minus",
     },
@@ -1296,20 +1344,6 @@ feature_matrix = {
         "long": "minus",
         "aspirated": "minus",
     },
-    "ʑ": {
-        "place": "palato-alveolar",
-        "manner": "fricative",
-        "syllabic": "minus",
-        "voice": "plus",
-        "nasal": "minus",
-        "retroflex": "minus",
-        "lateral": "minus",
-        "high": "mid",
-        "back": "front",
-        "round": "minus",
-        "long": "minus",
-        "aspirated": "minus",
-    },
     "ɯ": {
         "place": "vowel",
         "manner": "vowel2",
@@ -1320,6 +1354,20 @@ feature_matrix = {
         "lateral": "minus",
         "high": "high",
         "back": "back",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+    },
+    "ʑ": {
+        "place": "palato-alveolar",
+        "manner": "fricative",
+        "syllabic": "minus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "front",
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
@@ -1436,109 +1484,6 @@ def _retrieve(i, j, s, S, T, str1, str2, out):
                 out
             )
     return out
-
-
-def aline_score(str1, str2):
-    dist = aline_dist(str1, str2)
-    dist_1 = aline_dist(str1, str1)
-    dist_2 = aline_dist(str2, str2)
-    return 1 - (2*dist / (dist_1 + dist_2))
-
-def aline_dist(str1, str2, epsilon=0):
-    """
-    Compute the alignment of two phonetic strings.
-
-    :type str1, str2: str
-    :param str1, str2: Two strings to be aligned
-    :type epsilon: float (0.0 to 1.0)
-    :param epsilon: Adjusts threshold similarity score for near-optimal alignments
-
-    :rtpye: list(list(tuple(str, str)))
-    :return: Alignment(s) of str1 and str2
-
-    (Kondrak 2002: 51)
-    """
-    if np is None:
-        raise ImportError("You need numpy in order to use the align function")
-
-    assert 0.0 <= epsilon <= 1.0, "Epsilon must be between 0.0 and 1.0."
-    m = len(str1)
-    n = len(str2)
-    # This includes Kondrak's initialization of row 0 and column 0 to all 0s.
-    S = np.zeros((m + 1, n + 1), dtype=float)
-
-    # If i <= 1 or j <= 1, don't allow expansions as it doesn't make sense,
-    # and breaks array and string indices. Make sure they never get chosen
-    # by setting them to -inf.
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            edit1 = S[i - 1, j] + sigma_skip(str1[i - 1])
-            edit2 = S[i, j - 1] + sigma_skip(str2[j - 1])
-            edit3 = S[i - 1, j - 1] + sigma_sub(str1[i - 1], str2[j - 1])
-            if i > 1:
-                edit4 = S[i - 2, j - 1] + sigma_exp(str2[j - 1], str1[i - 2 : i])
-            else:
-                edit4 = -inf
-            if j > 1:
-                edit5 = S[i - 1, j - 2] + sigma_exp(str1[i - 1], str2[j - 2 : j])
-            else:
-                edit5 = -inf
-            S[i, j] = max(edit1, edit2, edit3, edit4, edit5, 0)
-
-    T = (1 - epsilon) * np.amax(S)  # Threshold score for near-optimal alignments
-
-    return score(m, n, 0, S, T, str1, str2)
-
-
-
-def score(i, j, s, S, T, str1, str2):
-    """
-    Retrieve the path through the similarity matrix S starting at (i, j).
-
-    :rtype: list(tuple(str, str))
-    :return: Alignment of str1 and str2
-    """
-    if S[i, j] == 0:
-        return s
-    else:
-        if j > 1 and S[i - 1, j - 2] + sigma_exp(str1[i - 1], str2[j - 2 : j]) + s >= T:
-            return score(
-                i - 1,
-                j - 2,
-                s + sigma_exp(str1[i - 1], str2[j - 2 : j]),
-                S,
-                T,
-                str1,
-                str2
-            )
-        elif (
-            i > 1 and S[i - 2, j - 1] + sigma_exp(str2[j - 1], str1[i - 2 : i]) + s >= T
-        ):
-            return score(
-                i - 2,
-                j - 1,
-                s + sigma_exp(str2[j - 1], str1[i - 2 : i]),
-                S,
-                T,
-                str1,
-                str2
-            )
-        elif S[i, j - 1] + sigma_skip(str2[j - 1]) + s >= T:
-            return score(i, j - 1, s + sigma_skip(str2[j - 1]), S, T, str1, str2)
-        elif S[i - 1, j] + sigma_skip(str1[i - 1]) + s >= T:
-            return score(i - 1, j, s + sigma_skip(str1[i - 1]), S, T, str1, str2)
-        elif S[i - 1, j - 1] + sigma_sub(str1[i - 1], str2[j - 1]) + s >= T:
-            return score(
-                i - 1,
-                j - 1,
-                s + sigma_sub(str1[i - 1], str2[j - 1]),
-                S,
-                T,
-                str1,
-                str2
-            )
-    return s
-
 
 def sigma_skip(p):
     """

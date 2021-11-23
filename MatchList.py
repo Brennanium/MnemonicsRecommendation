@@ -26,8 +26,10 @@ class Match:
     def __init__(self, input_node, translation):
         self.matched_words = ''
         self.matched_phones = ''
+        self.matched_phones_raw = ''
         self.target_word = input_node.word
         self.target_phones = input_node.phones
+        self.target_phones_raw = input_node.phones_raw
         self.target_definitions = input_node.definitions
         self.translation = translation
         self.delta = 0
@@ -68,6 +70,7 @@ class Match:
     def add_new_matched_phones(self, node, phonetic_delta):
         self.matched_words = self.matched_words + ' ' + node.word
         self.matched_phones = self.matched_phones + node.phones
+        self.matched_phones_raw = self.matched_phones_raw + ' ' + node.phones_raw
         self.delta += phonetic_delta * phonetic_multiplier
         self.delta += semantic_distance(node.word, self.translation, semantic_multiplier)
         self.delta += node.aoa * aoa_multiplier

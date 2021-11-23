@@ -8,6 +8,7 @@ non_speech_marks = ['ˈ', '.', "'" ,'ˌ' ,'ː', '̯', ':', '-', '-', '|', '|', '
                     'ᵊ', '\u200b', 'ʲ', '˞', '̈', '—', 'ʰ', '̶', ',', '̆', '\xa0',
                     '\u2009', 'ˑ',  '·', 'ʷ', '̥', 'ˡ', '`', '̝', '̙', '/', '\\',
                     '̃', '(', ')', '̩', '͡', '\u200c', '(', '̪', '̚', 'ᵊ', ' ']
+brackets = ['[',']','(',')','\{','\}','/','|','\\']
 invalid_symbols = {'.'}
 
 def is_valid_word(word):
@@ -23,12 +24,19 @@ def remove_stress_marks(input):
         phones = phones.replace(c, '')
     return phones
 
+def remove_brackets(input):
+    phones = input
+    for c in brackets:
+        phones = phones.replace(c, '')
+    return phones
+
 class PhoneNode:
     def __init__(self, char):
         self.char = char
         self.is_word = False
         self.word = ""
         self.phones = ""
+        self.phones_raw = ""
         self.children = {}
         self.aoa = 0
         self.ignored = False
@@ -65,7 +73,7 @@ class PhoneTrie:
     # starting with the first word with the pronunciation entered.
     # Subsequent nodes with the same pronunciation can be found using
     # node.next values
-    def insert(self, word, phones, aoa):
+    def insert(self, word, phones, phones_raw, aoa):
         if ' ' in phones or ' ' in word or not is_valid_word(phones):
             return
         node = self.root
@@ -89,6 +97,7 @@ class PhoneTrie:
         node.is_word = True
         node.word = word.lower()
         node.phones = phones
+        node.phones_raw = phones_raw
         node.aoa = aoa
         self.num_nodes = self.num_nodes + 1
 
@@ -140,7 +149,7 @@ class PhoneTrie:
             for row in dataFile:
                 cols = row.split(';')
                 for pronunciation in cols[1].split(','):
-                    self.insert(cols[0], remove_stress_marks(pronunciation), float(cols[2]))
+                    self.insert(cols[0], remove_stress_marks(pronunciation), remove_brackets(pronunciation), float(cols[2]))
 
 
     # won't necessiarly print in what you would consider alphabetical order

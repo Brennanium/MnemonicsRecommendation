@@ -35,7 +35,7 @@ class WWUTransphoner:
         MatchList.semantic_multiplier = semantic
         MatchList.orthographic_multiplier = orthographic
 
-    def get_mnemonics(self, input_word, translation, N=5):
+    def get_mnemonics(self, input_word, translation, N=5, include_phones=False):
         # if N is too small the closest phonetic match may be
         # nonsense, and it won't allow for the other metrics to
         # replace it
@@ -65,8 +65,13 @@ class WWUTransphoner:
                     match.mark_search_failed()
                     match_list.add_match(match)
             working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
-
-        return [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
+        
+        if include_phones:
+            words = [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
+            phones = [ "/" + match.matched_phones_raw.strip() + "/" for match in match_list.get_finished_matches(old_N) ]
+            return words, phones, "/" + input_node.phones_raw + "/"
+        else:
+            return [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
 
     # Marks a word in the target trie as unusuable, so Subsequent
     # mnemonics will not contain it again

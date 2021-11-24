@@ -83,7 +83,9 @@ class WWUTransphoner:
         MatchList.semantic_multiplier = semantic
         MatchList.orthographic_multiplier = orthographic
 
-    def get_mnemonics(self, input_word, translation=None, N=5):
+    
+
+    def get_mnemonics(self, input_word, translation=None, N=5, include_phones=False):
         """
         Return a list of mnemonics similar to the input word
 
@@ -93,6 +95,9 @@ class WWUTransphoner:
         :returns           : a list of N mnemonic phrases/words
         :raises    KeyError: raises when the input word's phones are not in the dictionary
         """
+
+        old_N = N
+        N = max(N, 5)
 
         input_node = self.input_trie.search(input_word.lower())
         if not input_node:
@@ -116,8 +121,13 @@ class WWUTransphoner:
                     match.is_fully_matched = True
                     match_list.add_match(match)
             working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
-
-        return [ match.matched_words for match in match_list.get_finished_matches(N) ]
+        
+        if include_phones:
+            words = [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
+            phones = [ "/" + match.matched_phones_raw.strip() + "/" for match in match_list.get_finished_matches(old_N) ]
+            return words, phones, "/" + input_node.phones_raw + "/"
+        else:
+            return [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
 
     def mark_ignored(self, word):
         """

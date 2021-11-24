@@ -1,21 +1,24 @@
 
+<p>{{form.inputWord.data}} - {{inputWordPhones}}</p>
 <table id="result_table" class="table table-hover">
-        <thead>
-            <tr>
-            <th scope="col">#</th>
-            <th scope="col">Matches</th>
-            <th scope="col">Sentences</th>
+    <thead>
+        <tr>
+        <th scope="col">#</th>
+        <th scope="col">Matches</th>
+        <th scope="col">IPA</th>
+        <th scope="col">Sentences</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if wordMatches %}
+            {% for words, phones in wordPhoneMatches %}
+            <tr class='clickable-row'>
+                <th scope="row">{{ (wordMatches.index(words)+1) }}</th>
+                <td>{{words}}</td>
+                <td>{{phones}}</td>
+                <td>{{ sentences[wordMatches.index(words)] }}</td>
             </tr>
-        </thead>
-        <tbody>
-            {% if words %}
-                {% for word in words %}
-                <tr class='clickable-row'>
-                    <th scope="row">{{ (words.index(word)+1) }}</th>
-                    <td>{{word}}</td>
-                    <td>{{ sentences[words.index(word)] }}</td>
-                </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>

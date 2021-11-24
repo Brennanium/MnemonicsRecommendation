@@ -15,6 +15,7 @@ class PhoneNode:
         self.is_word = False
         self.word = ""
         self.phones = ""
+        self.phones_raw = ""
         self.children = {}
         self.aoa = 0
         self.ignored = False
@@ -82,7 +83,26 @@ class PhoneTrie:
                 input = input.replace(c, '')
         return input
 
-    def insert(self, word, phones, aoa):
+    def remove_brackets(input):
+        """
+        Remove all characters not used by the aline algorithm and return
+
+        :param input: string to have characters removed from
+        :returns: input string with any characters not used in the aline algorithm removed
+        """
+        brackets = ['[',']','(',')','\{','\}','/','|','\\']
+
+        phones = input
+        for c in brackets:
+            phones = phones.replace(c, '')
+        return phones
+
+    # Inserts a word and it's phones into the trie, if two words have
+    # the same pronunciation/phones, nodes will be strung into a list
+    # starting with the first word with the pronunciation entered.
+    # Subsequent nodes with the same pronunciation can be found using
+    # node.next values
+    def insert(self, word, phones, phones_raw, aoa):
         """
         Insert a new node into the trie. If two words have the same pronunciation, they will
         arrive at the same node, if this happens the new node gets saved in the node.next
@@ -113,6 +133,7 @@ class PhoneTrie:
         node.is_word = True
         node.word = word.lower()
         node.phones = phones
+        node.phones_raw = phones_raw
         node.aoa = aoa
         self.num_nodes = self.num_nodes + 1
 
@@ -182,7 +203,7 @@ class PhoneTrie:
             for row in dataFile:
                 cols = row.split(';')
                 for pronunciation in cols[1].split(','):
-                    self.insert(cols[0], PhoneTrie.remove_stress_marks(pronunciation), float(cols[2]))
+                    self.insert(cols[0], PhoneTrie.remove_stress_marks(pronunciation), PhoneTrie.remove_brackets(pronunciation), float(cols[2]))
 
 
 

@@ -33,12 +33,6 @@ class PhoneNode:
 
 class PhoneTrie:
 
-    # Symbols for writing words phoneticly not used by the aline algorithm
-    ignored_speech_marks = ['ˈ', '.', "'" ,'ˌ' ,'ː', '̯', ':', '-', '-', '|', '|', '/', 'ᵝ',
-                        'ᵊ', '\u200b', 'ʲ', '˞', '̈', '—', 'ʰ', '̶', ',', '̆', '\xa0',
-                        '\u2009', 'ˑ',  '·', 'ʷ', '̥', 'ˡ', '`', '̝', '̙', '/', '\\',
-                        '̃', '(', ')', '̩', '͡', '\u200c', '(', '̪', '̚', 'ᵊ', ' ']
-
     def __init__(self, language_code):
         """
         Initialize a trie where each node PhoneNode, trie is built from input dictionaries that store
@@ -56,9 +50,9 @@ class PhoneTrie:
         elif language_code == 'en': # english
             self.insert_dictionary('dictionaries/english/top_8000_words.csv')
         elif language_code == 'fr': # french
-            self.insert_dictionary()
+            self.insert_dictionary('dictionaries/french/fr_FR.csv')
         elif language_code == 'zh': # mandarin
-            self.insert_dictionary()
+            self.insert_dictionary('dictionaries/chinese/zh.csv')
         elif language_code == 'ja': # japanese
             self.insert_dictionary('dictionaries/japanese/phones_ja.csv')
         else:
@@ -78,15 +72,15 @@ class PhoneTrie:
 
     def remove_stress_marks(input):
         """
-        Remove all characters found in the ignored_speech_marks and return
+        Remove all characters not used by the aline algorithm and return
 
         :param input: string to have characters removed from
-        :returns: input string with any characters in ignored_speech_marks removed
+        :returns: input string with any characters not used in the aline algorithm removed
         """
-        phones = input
-        for c in PhoneTrie.ignored_speech_marks:
-            phones = phones.replace(c, '')
-        return phones
+        for c in input:
+            if c not in aline.feature_matrix.keys():
+                input = input.replace(c, '')
+        return input
 
     def insert(self, word, phones, aoa):
         """

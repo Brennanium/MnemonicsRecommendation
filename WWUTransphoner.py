@@ -1,14 +1,15 @@
 import random
 import copy
+import os
 from datetime import datetime
 from gensim import models
 from gensim.models import KeyedVectors
 import torch
-from transformers import OpenAIGPTTokenizer, OpenAIGPTLMHeadModel
+from transformers import OpenAIGPTTokenizer, OpenAIGPTLMHeadModel, BertTokenizer, BertForMaskedLM
+from torch.nn import functional
 from happytransformer import HappyWordPrediction
 import MatchList
 from PhoneTrie import PhoneTrie
-
 
 class WWUTransphoner:
 
@@ -42,13 +43,30 @@ class WWUTransphoner:
 
             # only can produce sentences for english
             if output_language == 'en':
-                self.happy_wp = HappyWordPrediction()
-                self.tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
-                self.model = OpenAIGPTLMHeadModel.from_pretrained('openai-gpt')
+                self.load_models()
 
             self.input_language = input_language
             self.output_language = output_language
 
+    def load_models(self):
+        """
+        Loads the models from the local directory, if first time running
+        on the machine it will procure the models
+        """
+        if os.path.isdir('models'):
+            self.gpt_tokenizer = OpenAIGPTTokenizer.from_pretrained('models/GPTTokenizer')
+            self.gpt_model = OpenAIGPTLMHeadModel.from_pretrained('models/GPTModel')
+            self.bert_tokenizer = BertTokenizer.from_pretrained('models/BertTokenizer')
+            self.bert_model = BertForMaskedLM.from_pretrained('models/BertModel', return_dict = True)
+        else:
+            self.gpt_tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
+            self.gpt_model = OpenAIGPTLMHeadModel.from_pretrained('openai-gpt')
+            self.bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            self.bert_model = BertForMaskedLM.from_pretrained('bert-base-uncased', return_dict = True)
+            self.gpt_tokenizer.save_pretrained('models/GPTTokenizer')
+            self.gpt_model.save_pretrained('models/GPTModel')
+            self.bert_tokenizer.save_pretrained('models/BertTokenizer')
+            self.bert_model.save_pretrained('models/BertModel')
 
     def set_multipliers(self, imageability=1.0, orthographic=1, phonetic=1.0, semantic=50):
         """
@@ -125,7 +143,7 @@ class WWUTransphoner:
         # Encodes the input mnemonics into pytorch tensors
         encodings = []
         for input in input_mnemonics:
-            encodings.append(self.tokenizer.encode(input, return_tensors='pt')[0])
+            encodings.append(self.gpt_tokenizer.encode(input, return_tensors='pt')[0])
 
         # Input mnemonics get encoded into different token lengths, and the model
         # needs equal length inputs for all inputs in a batch so we seperate them out
@@ -133,9 +151,9 @@ class WWUTransphoner:
         token_lenghts = { len(encoding) for encoding in encodings }
         for lenght in token_lenghts:
             curr_list = [encoding for encoding in encodings if len(encoding) == lenght]
-            outputs = self.model.generate(torch.stack(curr_list), max_length=15, do_sample=True)
+            outputs = self.gpt_model.generate(torch.stack(curr_list), max_length=15, do_sample=True)
             for tensor in outputs:
-                decoded_text = self.tokenizer.decode(tensor, skip_special_tokens=True)
+                decoded_text = self.gpt_tokenizer.decode(tensor, skip_special_tokens=True)
                 sentences.append(WWUTransphoner.trim_to_one_sentence(decoded_text))
 
         return sentences
@@ -157,7 +175,6 @@ class WWUTransphoner:
                 sentence_end = min(sentence_end, text.index(p))
         return text[:sentence_end+1]
 
-
     def __gen_sentence_beginning(self, incomplete_sentence):
         """
         Return a complete sentence, composed of newly generated text preceeding the
@@ -169,19 +186,17 @@ class WWUTransphoner:
 
         last_token = ''
         for _ in range(random.randrange(0,8)):
-            temp = '[MASK] ' + incomplete_sentence
-            result = self.happy_wp.predict_mask(temp, top_k=5) # makes 5 predictions
-            new_token = result[random.randrange(0, 5)].token
+            text = '[MASK] ' + incomplete_sentence
 
-            # choose another prediction if predictions are repeating
-            # (prevents abnormal beginning of sentences)
-            attemps = 0
-            while (new_token == '•' or last_token == new_token) and attemps < 5:
-                new_token = result[random.randrange(0, 5)].token
-                last_token = new_token
-                attemps += 1
+            input = self.bert_tokenizer.encode_plus(text, return_tensors = "pt")
+            mask_index = torch.where(input["input_ids"][0] == self.bert_tokenizer.mask_token_id)
+            output = self.bert_model(**input)
+            logits = output.logits
+            softmax = functional.softmax(logits, dim=-1)
+            mask_word = softmax[0, mask_index, :]
+            predictions = torch.topk(mask_word, 10, dim=1)[1][0]
 
-            incomplete_sentence = new_token + ' ' + incomplete_sentence
+            incomplete_sentence = self.bert_tokenizer.decode([predictions[0]]) + ' ' + incomplete_sentence
 
         return incomplete_sentence
 
@@ -204,8 +219,8 @@ class WWUTransphoner:
 
         return complete_sentences
 
-a = WWUTransphoner("de", "en")
-b = a.get_mnemonics("tropisch", N=10)
+a = WWUTransphoner("zh", "en")
+b = a.get_mnemonics("一味推托", N=10)
 print(b)
 c = a.gen_sentences(b)
 print(c)

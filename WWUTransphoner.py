@@ -34,9 +34,9 @@ class WWUTransphoner:
         """
 
         if input_language not in WWUTransphoner.supported_languages:
-            raise ValueError("\"" + input_language + "\"", "not in supported languages:", supported_languages)
+            raise ValueError("\"" + input_language + "\"", "not in supported languages:", WWUTransphoner.supported_languages)
         elif output_language not in WWUTransphoner.supported_languages:
-            raise ValueError("\"" + input_language + "\"", "not in supported languages:", supported_languages)
+            raise ValueError("\"" + input_language + "\"", "not in supported languages:", WWUTransphoner.supported_languages)
         else:
             self.target_trie = PhoneTrie(output_language)
             self.input_trie = PhoneTrie(input_language)

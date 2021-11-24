@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, IntegerField, SelectField
 from wtforms.validators import DataRequired, NumberRange
 
 class inputForm(FlaskForm):
-    inputLang = SelectField('Input Language', choices=[('en', 'English'), ('ja', 'Japanese'), ('de', 'German')])
+    inputLang = SelectField('Input Language', choices=[('en', 'English'), ('ja', 'Japanese'), ('de', 'German'), ('fr', 'French'), ('zh', 'Mandarin')])
     outputLang = SelectField('Output Language', choices=[('en','English')])
     inputWord = StringField('Input Word', validators=[DataRequired()])
     translation = StringField('Input Word Translation (optional)', )

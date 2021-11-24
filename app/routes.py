@@ -31,13 +31,13 @@ def getResults(form):
 
     if not wwut or form.inputLang.data != wwut.input_language:
         flash("Setting up server for '" + form.inputLang.data + "', may take a moment.")
-        wwut = WWUTransphoner(form.inputLang.data)
+        wwut = WWUTransphoner(form.inputLang.data, form.outputLang.data)
 
     wordMatches = wwut.get_mnemonics(form.inputWord.data, form.translation.data, int(form.numMatches.data))
     if not wordMatches:
         return False
 
-    sentenceMatches = wwut.gen_sentence(wordMatches)
+    sentenceMatches = wwut.gen_sentences(wordMatches)
 
     ##for testing
     #wordMatches = ['this', 'is', 'a', 'test']

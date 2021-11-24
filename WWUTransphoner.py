@@ -85,7 +85,7 @@ class WWUTransphoner:
 
     
 
-    def get_mnemonics(self, input_word, translation, N=5, include_phones=False):
+    def get_mnemonics(self, input_word, translation=None, N=5, include_phones=False):
         """
         Return a list of mnemonics similar to the input word
 

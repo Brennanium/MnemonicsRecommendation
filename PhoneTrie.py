@@ -4,32 +4,6 @@ import aline
 import heapq
 import math
 
-non_speech_marks = ['ˈ', '.', "'" ,'ˌ' ,'ː', '̯', ':', '-', '-', '|', '|', '/', 'ᵝ',
-                    'ᵊ', '\u200b', 'ʲ', '˞', '̈', '—', 'ʰ', '̶', ',', '̆', '\xa0',
-                    '\u2009', 'ˑ',  '·', 'ʷ', '̥', 'ˡ', '`', '̝', '̙', '/', '\\',
-                    '̃', '(', ')', '̩', '͡', '\u200c', '(', '̪', '̚', 'ᵊ', ' ']
-brackets = ['[',']','(',')','\{','\}','/','|','\\']
-invalid_symbols = {'.'}
-
-def is_valid_word(word):
-    for c in word:
-        if c not in aline.feature_matrix:
-            invalid_symbols.add(c)
-            return False
-    return True
-
-# def remove_stress_marks(input):
-#     phones = input
-#     for c in non_speech_marks:
-#         phones = phones.replace(c, '')
-#     return phones
-
-# def remove_brackets(input):
-#     phones = input
-#     for c in brackets:
-#         phones = phones.replace(c, '')
-#     return phones
-
 class PhoneNode:
 
 
@@ -116,6 +90,8 @@ class PhoneTrie:
         :param input: string to have characters removed from
         :returns: input string with any characters not used in the aline algorithm removed
         """
+        brackets = ['[',']','(',')','\{','\}','/','|','\\']
+
         phones = input
         for c in brackets:
             phones = phones.replace(c, '')

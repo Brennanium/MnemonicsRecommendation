@@ -47,8 +47,12 @@ def getResults(form: inputForm):
         flash("Setting up server for '" + form.inputLang.data + "', may take a moment.")
         wwut = WWUTransphoner(form.inputLang.data, form.outputLang.data)
 
-    wordMatches, phoneMatches, inputWordPhones = wwut.get_mnemonics(form.inputWord.data, form.translation.data, int(form.numMatches.data), include_phones=True)
-    if not wordMatches:
+    try:
+        wordMatches, phoneMatches, inputWordPhones = wwut.get_mnemonics(form.inputWord.data, form.translation.data, int(form.numMatches.data), include_phones=True)
+        if not wordMatches:
+            return False
+    except KeyError as error:
+        flash(str(error))
         return False
 
     sentenceMatches = wwut.gen_sentences(wordMatches)

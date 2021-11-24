@@ -10,12 +10,13 @@ from torch.nn import functional
 from happytransformer import HappyWordPrediction
 import MatchList
 from PhoneTrie import PhoneTrie
+from typing import Optional, List, Union, Tuple
 
 class WWUTransphoner:
 
     supported_languages = {'en', 'ja', 'de', 'fr', 'zh'}
 
-    def __init__(self, input_language, output_language):
+    def __init__(self, input_language: str, output_language: str):
         """
         The WWUTransphoner provides the functionality of taking in a word in one language,
         and outputting a short mnemonic phrase for use in second language vocabulary memorization
@@ -68,7 +69,7 @@ class WWUTransphoner:
             self.bert_tokenizer.save_pretrained('models/BertTokenizer')
             self.bert_model.save_pretrained('models/BertModel')
 
-    def set_multipliers(self, imageability=1.0, orthographic=1, phonetic=1.0, semantic=50):
+    def set_multipliers(self, imageability: Optional[float]=1.0, orthographic: Optional[float]=1, phonetic: Optional[float]=1.0, semantic: Optional[float]=50):
         """
         Update the multipliers that are used when computing how similar a mnemonic is
         to the user's input.
@@ -85,7 +86,7 @@ class WWUTransphoner:
 
     
 
-    def get_mnemonics(self, input_word, translation=None, N=5, include_phones=False):
+    def get_mnemonics(self, input_word: str, translation: Optional[str] = None, N: Optional[int]=5, include_phones: Optional[bool]=False) -> Union[List[str],Tuple[List[str],List[str],str]]:
         """
         Return a list of mnemonics similar to the input word
 
@@ -129,7 +130,7 @@ class WWUTransphoner:
         else:
             return [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
 
-    def mark_ignored(self, word):
+    def mark_ignored(self, word: str) -> str:
         """
         Mark a word ignored such that it won't be used in further mnemonics
 
@@ -139,7 +140,7 @@ class WWUTransphoner:
         if node:
             node.ignored = True
 
-    def __gen_sentence_ends(self, input_mnemonics):
+    def __gen_sentence_ends(self, input_mnemonics: List[str]) -> List[str]:
         """
         Return a list of sentences. The list will have one sentence per mnemonic
         found in input_mnemonics.
@@ -168,7 +169,7 @@ class WWUTransphoner:
 
         return sentences
 
-    def trim_to_one_sentence(text):
+    def trim_to_one_sentence(text: str) -> str:
         """
         Return the text shortened to one sentence, sentence breaks are denoted by
         a period, exclamation mark, or question mark
@@ -185,7 +186,7 @@ class WWUTransphoner:
                 sentence_end = min(sentence_end, text.index(p))
         return text[:sentence_end+1]
 
-    def __gen_sentence_beginning(self, incomplete_sentence):
+    def __gen_sentence_beginning(self, incomplete_sentence: str) -> str:
         """
         Return a complete sentence, composed of newly generated text preceeding the
         passed in incomplete sentence
@@ -210,7 +211,7 @@ class WWUTransphoner:
 
         return incomplete_sentence
 
-    def gen_sentences(self, input_mnemonics):
+    def gen_sentences(self, input_mnemonics: List[str]) -> List[str]:
         """
         Return a list of mnemonic sentences, one sentence per mnemonic in input_mnemonics
 

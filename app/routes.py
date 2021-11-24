@@ -2,13 +2,14 @@ from app import app
 from flask import render_template, flash, redirect
 from app.forms import inputForm
 from WWUTransphoner import WWUTransphoner
+from typing import List
 
-wordMatches = None
-phoneMatches = None
-sentenceMatches = None
-inputWordPhones = None
+wordMatches: List[str] = None
+phoneMatches: List[str] = None
+sentenceMatches: List[str] = None
+inputWordPhones: str = None
 
-wwut = None
+wwut: WWUTransphoner = None
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
@@ -28,14 +29,14 @@ def home():
                 form=form, 
                 matchesReady=matchesReady, 
                 wordMatches=wordMatches, 
-                wordPhoneMatches=zip(wordMatches,phoneMatches), 
+                phoneMatches=phoneMatches, 
                 inputWordPhones=inputWordPhones,
                 sentences=sentenceMatches)
         else:
             flash("Server doesn't enough data for: " + form.inputWord.data + ", sorry about that.")
     return render_template("home.html",form=form, matchesReady=matchesReady)
 
-def getResults(form):
+def getResults(form: inputForm):
     global wordMatches
     global phoneMatches
     global sentenceMatches

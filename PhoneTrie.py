@@ -1,5 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from MatchList import Match
+
 import csv
+from io import TextIOWrapper
 import re
+from typing import List, Union, Tuple
+
+from numpy import character
 import aline
 import heapq
 import math
@@ -7,7 +16,7 @@ import math
 class PhoneNode:
 
 
-    def __init__(self, char):
+    def __init__(self, char: character):
         """
         Stores data for a Node in the PhoneTrie
         """
@@ -34,7 +43,7 @@ class PhoneNode:
 
 class PhoneTrie:
 
-    def __init__(self, language_code):
+    def __init__(self, language_code: str):
         """
         Initialize a trie where each node PhoneNode, trie is built from input dictionaries that store
         the word, the words phones, and the age of aquisition for the word.
@@ -59,7 +68,7 @@ class PhoneTrie:
         else:
             raise ValueError("Language " + language_code + " is not supported. Currently languages de, fr, zh, and ja are supported.")
 
-    def is_valid_entry(entry):
+    def is_valid_entry(entry: str):
         """
         Return if a entry is composed only of ipa symbols used in the aline algorithm
 
@@ -71,7 +80,7 @@ class PhoneTrie:
                 return False
         return True
 
-    def remove_stress_marks(input):
+    def remove_stress_marks(input: str):
         """
         Remove all characters not used by the aline algorithm and return
 
@@ -83,7 +92,7 @@ class PhoneTrie:
                 input = input.replace(c, '')
         return input
 
-    def remove_brackets(input):
+    def remove_brackets(input: str):
         """
         Remove all characters not used by the aline algorithm and return
 
@@ -102,7 +111,7 @@ class PhoneTrie:
     # starting with the first word with the pronunciation entered.
     # Subsequent nodes with the same pronunciation can be found using
     # node.next values
-    def insert(self, word, phones, phones_raw, aoa):
+    def insert(self, word: str, phones: str, phones_raw: str, aoa: int):
         """
         Insert a new node into the trie. If two words have the same pronunciation, they will
         arrive at the same node, if this happens the new node gets saved in the node.next
@@ -110,6 +119,7 @@ class PhoneTrie:
 
         :param   word: word to insert into trie
         :param phones: phones for word being inserted
+        :param phones: raw unprocessed phones for word being inserted
         :param    aoa: int, age of aquisition for word being entered
         """
         if ' ' in phones or ' ' in word or not PhoneTrie.is_valid_entry(phones):
@@ -138,13 +148,13 @@ class PhoneTrie:
         self.num_nodes = self.num_nodes + 1
 
 
-    def search(self, word):
+    def search(self, word: str):
         """
         Return the node from the trie that corresponds to word
         """
         return self.__search(self.root, word)
 
-    def __search(self, node, word):
+    def __search(self, node: PhoneNode, word: str):
         """
         Return the node from the trie that corresponds to word
         :param node: node to be checked, and all children checked
@@ -165,7 +175,7 @@ class PhoneTrie:
                     return node
             return None
 
-    def write_trie_to_file(self, file_path):
+    def write_trie_to_file(self, file_path: str):
         """
         Writes the trie to a file in the same format as the dictionaries
         a dictionary line looks like:
@@ -175,7 +185,7 @@ class PhoneTrie:
             self.__write_trie_to_file(self.root, new_file)
 
 
-    def __write_trie_to_file(self, node, open_file):
+    def __write_trie_to_file(self, node: PhoneNode, open_file: TextIOWrapper):
         """
         Writes a node to the open file in the style
         word ; pronunciation, pronunciation ; age of aquisition
@@ -195,7 +205,7 @@ class PhoneTrie:
             node = node.next
             self.__write_trie_to_file(node, open_file)
 
-    def insert_dictionary(self, path_to_dict):
+    def insert_dictionary(self, path_to_dict: str):
         """
         Inserts entries from a dictionary file into the trie
         """
@@ -207,7 +217,7 @@ class PhoneTrie:
 
 
 
-    def __add_to_running_list(self, delta_and_node):
+    def __add_to_running_list(self, delta_and_node: Tuple[float,PhoneNode]):
         """
         For use with find_phonetic_match, adds a node and it's delta to the running
         list of N best phonetic matches.
@@ -225,7 +235,7 @@ class PhoneTrie:
             else:
                 self.max = heapq.heappushpop(self.n_best_list, delta_and_node)[0]
 
-    def find_phonetic_match(self, unfinished_match, N):
+    def find_phonetic_match(self, unfinished_match: Match, N: int) -> List[Tuple[float,PhoneNode]]:
         """
         Searches the trie for a similar set of phones to the unmatched phones of unfinished_match
         Similarity is done by comparing an unmatched phone with a phone from the trie and adding
@@ -245,7 +255,7 @@ class PhoneTrie:
             self.__find_phonetic_match(self.root.children[c], unfinished_match.unmatched_phones, 0)
         return self.n_best_list
 
-    def __find_phonetic_match(self, node, phones, phonetic_delta):
+    def __find_phonetic_match(self, node: PhoneNode, phones: str, phonetic_delta: float):
         """
         Recursively add all possible matches from the trie to the running N best match list,
         updating the running phonetic delta along the way. Abandon early if match is more

@@ -11,11 +11,11 @@
     </thead>
     <tbody>
         {% if wordMatches %}
-            {% for words, phones in wordPhoneMatches %}
+            {% for words in wordMatches %}
             <tr class='clickable-row'>
                 <th scope="row">{{ (wordMatches.index(words)+1) }}</th>
                 <td>{{words}}</td>
-                <td>{{phones}}</td>
+                <td>{{ phoneMatches[wordMatches.index(words)] }}</td>
                 <td>{{ sentences[wordMatches.index(words)] }}</td>
             </tr>
             {% endfor %}

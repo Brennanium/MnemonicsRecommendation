@@ -1,8 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from PhoneTrie import PhoneNode
+
 from math import trunc
 import nltk
+from numpy import character
 from scipy.spatial import distance
 from gensim.models.keyedvectors import KeyedVectors
+
 import aline
+from typing import Optional, List, Union
 
 phonetic_multiplier = 5.0
 orthographic_multiplier = 3
@@ -10,7 +18,7 @@ semantic_multiplier = 50
 aoa_multiplier = 3.0
 
 model = KeyedVectors.load_word2vec_format("word_embeddings/english/glove.6B.50d.txt", binary=False)
-def semantic_distance(word1, word2, multiplier=1.0):
+def semantic_distance(word1: str, word2: str, multiplier: Optional[float]=1.0) -> float:
     """
     Return the cosine distance between the word2vec embeddings for word1, word2.
     If no embeddings are found, defaults to 20. Currently only has values for english.
@@ -26,7 +34,7 @@ def semantic_distance(word1, word2, multiplier=1.0):
 class Match:
 
 
-    def __init__(self, input_node, translation=None):
+    def __init__(self, input_node: PhoneNode, translation: Optional[str]=None):
         """
         The Match class can be used to store data about a mnemonic match as it is built.
 
@@ -46,7 +54,7 @@ class Match:
         self.search_failed = False # in case final phones can't be matched
         self.unmatched_phones = input_node.phones
 
-    def get_phones_unmatched(self):
+    def get_phones_unmatched(self) -> Union[None,List[character]]:
         """
         Return the yet unmatched target phones. Phones are determined yet unmatched if they
         proceed the last matched phone after using the ALINE alignment algorithm.
@@ -82,7 +90,7 @@ class Match:
         else:
             return self.target_phones[last_idx_aligned:]
 
-    def add_new_matched_phones(self, node, phonetic_delta):
+    def add_new_matched_phones(self, node: PhoneNode, phonetic_delta: float):
         """
         Update the match with the newly matched phones.
 
@@ -114,7 +122,7 @@ class MatchList:
         self.unfinished_matches = []
         self.finished_matches = []
 
-    def add_match(self, match):
+    def add_match(self, match: Match):
         """
         Add the match to the MatchList
 
@@ -125,7 +133,7 @@ class MatchList:
         else:
             self.unfinished_matches.append(match)
 
-    def remove_and_retrieve_unfinished_matches(self, N=10):
+    def remove_and_retrieve_unfinished_matches(self, N: Optional[int]=10) -> List[Match]:
         """
         Return the N best unfinished matches, and clear the unfinished_matches list
         Checks the matches are not complete first.
@@ -142,7 +150,7 @@ class MatchList:
         self.unfinished_matches = []
         return temp_unfinished
 
-    def get_finished_matches(self, N=10):
+    def get_finished_matches(self, N: Optional[int]=10) -> List[Match]:
         """
         Return the top N best finished matches
 

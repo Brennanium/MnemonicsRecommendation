@@ -43,9 +43,16 @@ def getResults(form: inputForm):
     global inputWordPhones
     global wwut
 
-    if not wwut or form.inputLang.data != wwut.input_language:
+    if not wwut or (form.inputLang.data != wwut.input_language and form.outputLang.data != wwut.output_language):
+        flash("Setting up server for '" + form.inputLang.data + "' and '" + form.outputLang.data  + "', may take a moment.")
+        wwut = WWUTransphoner(form.inputLang.data, form.outputLang.data)
+    elif form.inputLang.data != wwut.input_language:
         flash("Setting up server for '" + form.inputLang.data + "', may take a moment.")
         wwut = WWUTransphoner(form.inputLang.data, form.outputLang.data)
+    elif form.outputLang.data != wwut.output_language:
+        flash("Setting up server for '" + form.outputLang.data + "', may take a moment.")
+        wwut = WWUTransphoner(form.inputLang.data, form.outputLang.data)
+
 
     try:
         wordMatches, phoneMatches, inputWordPhones = wwut.get_mnemonics(form.inputWord.data, form.translation.data, int(form.numMatches.data), include_phones=True)
@@ -55,7 +62,10 @@ def getResults(form: inputForm):
         flash(str(error))
         return False
 
-    sentenceMatches = wwut.gen_sentences(wordMatches)
+    if form.outputLang.data == 'en':
+        sentenceMatches = wwut.gen_sentences(wordMatches)
+    else:
+        sentenceMatches = []
 
     ##for testing
     #wordMatches = ['this', 'is', 'a', 'test']

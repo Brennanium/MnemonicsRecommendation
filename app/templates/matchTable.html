@@ -3,10 +3,12 @@
 <table id="result_table" class="table table-hover">
     <thead>
         <tr>
-        <th scope="col">#</th>
-        <th scope="col">Matches</th>
-        <th scope="col">IPA</th>
-        <th scope="col">Sentences</th>
+            <th scope="col">#</th>
+            <th scope="col">Matches</th>
+            <th scope="col">IPA</th>
+            {% if form.outputLang.data == 'en' %}
+                <th scope="col">Sentences</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -16,7 +18,9 @@
                 <th scope="row">{{ (wordMatches.index(words)+1) }}</th>
                 <td>{{words}}</td>
                 <td>{{ phoneMatches[wordMatches.index(words)] }}</td>
-                <td>{{ sentences[wordMatches.index(words)] }}</td>
+                {% if form.outputLang.data == 'en' %}
+                    <td>{{ sentences[wordMatches.index(words)] }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         {% endif %}

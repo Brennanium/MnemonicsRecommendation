@@ -87,6 +87,9 @@ class PhoneTrie:
         :param input: string to have characters removed from
         :returns: input string with any characters not used in the aline algorithm removed
         """
+        input = input.replace('dʒ','ʤ')
+        input = input.replace('tʃ','ʧ')
+        
         for c in input:
             if c not in aline.feature_matrix.keys():
                 input = input.replace(c, '')
@@ -100,6 +103,9 @@ class PhoneTrie:
         :returns: input string with any characters not used in the aline algorithm removed
         """
         brackets = ['[',']','(',')','\{','\}','/','|','\\']
+
+        input = input.replace('dʒ','ʤ')
+        input = input.replace('tʃ','ʧ')
 
         phones = input
         for c in brackets:

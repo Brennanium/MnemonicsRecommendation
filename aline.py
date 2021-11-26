@@ -44,10 +44,17 @@ Example usage
 University of Toronto.
 """
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from numpy import ndarray
+
 try:
     import numpy as np
+    from numpy import ndarray
 except ImportError:
     np = None
+
+from typing import List, Union, Tuple, Dict, Optional
 
 # === Constants ===
 
@@ -59,7 +66,7 @@ C_sub = 35  # Substitutions
 C_exp = 45  # Expansions/compressions
 C_vwl = 5  # Vowel/consonant relative weight (decreased from 10)
 
-consonants = [
+consonants: List[str] = [
     "B",
     "N",
     "R",
@@ -131,7 +138,7 @@ consonants = [
 ]
 
 # Relevant features for comparing consonants and vowels
-R_c = [
+R_c: List[str] = [
     "aspirated",
     "lateral",
     "manner",
@@ -140,9 +147,10 @@ R_c = [
     "retroflex",
     "syllabic",
     "voice",
+    "rhotic",   # added seperate rhotic feature
 ]
 # 'high' taken out of R_v because same as manner
-R_v = [
+R_v: List[str] = [
     "back",
     "lateral",
     "long",
@@ -156,7 +164,7 @@ R_v = [
 ]
 
 # Flattened feature matrix (Kondrak 2002: 56)
-similarity_matrix = {
+similarity_matrix: Dict[str,float] = {
     # place
     "bilabial": 1.0,
     "labiodental": 0.95,
@@ -196,11 +204,11 @@ similarity_matrix = {
 }
 
 # Relative weights of phonetic features (Kondrak 2002: 55)
-salience = {
-    "syllabic": 5,
-    "place": 40,
-    "manner": 50,
-    "voice": 5,  # decreased from 10
+salience: Dict[str,int] = {
+    "syllabic": 15, # increased from 5
+    "place": 60,  # increased from 40
+    "manner": 40, # decreased from 50
+    "voice": 10,  # decreased from 10 # increased back to 10 from 5
     "nasal": 20,  # increased from 10
     "retroflex": 10,
     "lateral": 10,
@@ -208,11 +216,12 @@ salience = {
     "long": 0,  # decreased from 1
     "high": 3,  # decreased from 5
     "back": 2,  # decreased from 5
-    "round": 2,  # decreased from 5
+    "round": 10,  # decreased from 5 # increased to 10 from 2
+    "rhotic": 30,
 }
 
 # (Kondrak 2002: 59-60)
-feature_matrix = {
+feature_matrix: Dict[str,Dict[str,str]] = {
     # Consonants
     "p": {
         "place": "bilabial",
@@ -223,6 +232,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "b": {
         "place": "bilabial",
@@ -233,6 +243,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "t": {
         "place": "alveolar",
@@ -243,6 +254,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "d": {
         "place": "alveolar",
@@ -253,6 +265,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʈ": {
         "place": "retroflex",
@@ -263,6 +276,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɖ": {
         "place": "retroflex",
@@ -273,6 +287,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "c": {
         "place": "palatal",
@@ -283,6 +298,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɟ": {
         "place": "palatal",
@@ -293,6 +309,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "k": {
         "place": "velar",
@@ -303,6 +320,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "g": {
         "place": "velar",
@@ -313,6 +331,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "q": {
         "place": "uvular",
@@ -323,6 +342,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɢ": {
         "place": "uvular",
@@ -333,6 +353,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʔ": {
         "place": "glottal",
@@ -343,6 +364,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "m": {
         "place": "bilabial",
@@ -353,6 +375,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɱ": {
         "place": "labiodental",
@@ -363,6 +386,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "n": {
         "place": "alveolar",
@@ -373,6 +397,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɳ": {
         "place": "retroflex",
@@ -383,6 +408,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɲ": {
         "place": "palatal",
@@ -393,6 +419,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ŋ": {
         "place": "velar",
@@ -403,6 +430,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɴ": {
         "place": "uvular",
@@ -413,6 +441,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "N": {
         "place": "uvular",
@@ -423,6 +452,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʙ": {
         "place": "bilabial",
@@ -433,6 +463,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "B": {
         "place": "bilabial",
@@ -443,6 +474,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "r": {
         "place": "alveolar",
@@ -453,6 +485,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ʀ": {
         "place": "uvular",
@@ -463,6 +496,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "R": {
         "place": "uvular",
@@ -473,6 +507,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɾ": {
         "place": "alveolar",
@@ -483,6 +518,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɽ": {
         "place": "retroflex",
@@ -493,6 +529,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɸ": {
         "place": "bilabial",
@@ -503,6 +540,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "β": {
         "place": "bilabial",
@@ -513,6 +551,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "f": {
         "place": "labiodental",
@@ -523,6 +562,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "v": {
         "place": "labiodental",
@@ -533,6 +573,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "θ": {
         "place": "dental",
@@ -543,6 +584,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ð": {
         "place": "dental",
@@ -553,6 +595,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "s": {
         "place": "alveolar",
@@ -563,6 +606,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "z": {
         "place": "alveolar",
@@ -573,6 +617,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʃ": {
         "place": "palato-alveolar",
@@ -583,6 +628,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʒ": {
         "place": "palato-alveolar",
@@ -593,6 +639,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʂ": {
         "place": "retroflex",
@@ -603,6 +650,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʐ": {
         "place": "retroflex",
@@ -613,6 +661,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ç": {
         "place": "palatal",
@@ -623,6 +672,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʝ": {
         "place": "palatal",
@@ -633,6 +683,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "x": {
         "place": "velar",
@@ -643,6 +694,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɣ": {
         "place": "velar",
@@ -653,6 +705,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "χ": {
         "place": "uvular",
@@ -663,6 +716,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʁ": {
         "place": "uvular",
@@ -673,6 +727,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ħ": {
         "place": "pharyngeal",
@@ -683,6 +738,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʕ": {
         "place": "pharyngeal",
@@ -693,6 +749,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "h": {
         "place": "glottal",
@@ -703,6 +760,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɦ": {
         "place": "glottal",
@@ -713,6 +771,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɬ": {
         "place": "alveolar",
@@ -723,6 +782,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɮ": {
         "place": "alveolar",
@@ -733,6 +793,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʋ": {
         "place": "labiodental",
@@ -743,6 +804,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɹ": {
         "place": "alveolar",
@@ -753,6 +815,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɻ": {
         "place": "retroflex",
@@ -763,6 +826,7 @@ feature_matrix = {
         "retroflex": "plus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "j": {
         "place": "palatal",
@@ -773,6 +837,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɰ": {
         "place": "velar",
@@ -783,6 +848,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "l": {
         "place": "alveolar",
@@ -793,6 +859,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "w": {
         "place": "labiovelar",
@@ -803,6 +870,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     # Vowels
     "i": {
@@ -818,6 +886,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "y": {
         "place": "vowel",
@@ -832,6 +901,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "e": {
         "place": "vowel",
@@ -846,6 +916,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "E": {
         "place": "vowel",
@@ -860,6 +931,7 @@ feature_matrix = {
         "round": "minus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ø": {
         "place": "vowel",
@@ -874,6 +946,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɛ": {
         "place": "vowel",
@@ -888,6 +961,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "œ": {
         "place": "vowel",
@@ -902,6 +976,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "æ": {
         "place": "vowel",
@@ -916,6 +991,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "a": {
         "place": "vowel",
@@ -930,6 +1006,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "A": {
         "place": "vowel",
@@ -944,6 +1021,7 @@ feature_matrix = {
         "round": "minus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɨ": {
         "place": "vowel",
@@ -958,6 +1036,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʉ": {
         "place": "vowel",
@@ -972,6 +1051,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ə": {
         "place": "vowel",
@@ -986,6 +1066,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "U": {
         "place": "vowel",
@@ -1000,6 +1081,7 @@ feature_matrix = {
         "round": "plus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "o": {
         "place": "vowel",
@@ -1014,6 +1096,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "O": {
         "place": "vowel",
@@ -1028,6 +1111,7 @@ feature_matrix = {
         "round": "plus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɔ": {
         "place": "vowel",
@@ -1042,6 +1126,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɒ": {
         "place": "vowel",
@@ -1056,6 +1141,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "I": {
         "place": "vowel",
@@ -1070,6 +1156,7 @@ feature_matrix = {
         "round": "minus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     # Below are the additional entries not in origonial algorithm
     "ɡ": {
@@ -1081,6 +1168,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɭ": {
         "place": "retroflex",
@@ -1091,6 +1179,7 @@ feature_matrix = {
         "retroflex": "minus",
         "lateral": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ĭ": {
         "place": "vowel",
@@ -1105,6 +1194,7 @@ feature_matrix = {
         "round": "minus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʏ": {
         "place": "vowel",
@@ -1119,6 +1209,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ǝ": {
         "place": "vowel",
@@ -1133,6 +1224,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɘ": {
         "place": "vowel",
@@ -1147,6 +1239,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "u": {
         "place": "vowel",
@@ -1161,6 +1254,7 @@ feature_matrix = {
         "round": "plus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ŏ": {
         "place": "vowel",
@@ -1175,6 +1269,7 @@ feature_matrix = {
         "round": "plus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɪ": {
         "place": "vowel",
@@ -1189,6 +1284,7 @@ feature_matrix = {
         "round": "minus",
         "long": "plus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɐ": {
         "place": "vowel",
@@ -1203,6 +1299,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɫ": {
         "place": "alveolar",
@@ -1217,6 +1314,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʊ": {
         "place": "vowel",
@@ -1231,6 +1329,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɑ": {
         "place": "vowel",
@@ -1245,6 +1344,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɝ": {
         "place": "vowel",
@@ -1259,6 +1359,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɚ": {
         "place": "vowel",
@@ -1273,6 +1374,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ʌ": {
         "place": "vowel",
@@ -1287,6 +1389,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɜ": {
         "place": "vowel",
@@ -1301,6 +1404,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ɕ": {
         "place": "palato-alveolar",
@@ -1315,6 +1419,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ᵻ": {
         "place": "vowel",
@@ -1329,6 +1434,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "plus",
     },
     "ʧ": {
         "place": "palato-alveolar",
@@ -1343,6 +1449,22 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
+    },
+    "ʤ": {
+        "place": "palato-alveolar",
+        "manner": "affricate",
+        "syllabic": "minus",
+        "voice": "plus",
+        "nasal": "minus",
+        "retroflex": "minus",
+        "lateral": "minus",
+        "high": "mid",
+        "back": "central",
+        "round": "minus",
+        "long": "minus",
+        "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ɯ": {
         "place": "vowel",
@@ -1357,6 +1479,7 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     },
     "ʑ": {
         "place": "palato-alveolar",
@@ -1371,13 +1494,14 @@ feature_matrix = {
         "round": "minus",
         "long": "minus",
         "aspirated": "minus",
+        "rhotic": "minus",
     }
 }
 
 # === Algorithm ===
 
 
-def align(str1, str2, epsilon=0):
+def align(str1: str, str2: str, epsilon: Optional[float]=0):
     """
     Compute the alignment of two phonetic strings.
 
@@ -1395,6 +1519,12 @@ def align(str1, str2, epsilon=0):
         raise ImportError("You need numpy in order to use the align function")
 
     assert 0.0 <= epsilon <= 1.0, "Epsilon must be between 0.0 and 1.0."
+
+    str1 = str1.replace('dʒ','ʤ')
+    str2 = str2.replace('dʒ','ʤ')
+    str1 = str1.replace('tʃ','ʧ')
+    str2 = str2.replace('tʃ','ʧ')
+
     m = len(str1)
     n = len(str2)
     # This includes Kondrak's initialization of row 0 and column 0 to all 0s.
@@ -1429,7 +1559,7 @@ def align(str1, str2, epsilon=0):
 
 
 
-def _retrieve(i, j, s, S, T, str1, str2, out):
+def _retrieve(i: int, j: int, s: float, S: ndarray, T: float, str1: str, str2: str, out: List[Tuple[str,str]]) -> List[Tuple[str,str]]:
     """
     Retrieve the path through the similarity matrix S starting at (i, j).
 
@@ -1485,7 +1615,7 @@ def _retrieve(i, j, s, S, T, str1, str2, out):
             )
     return out
 
-def sigma_skip(p):
+def sigma_skip(p: str):
     """
     Returns score of an indel of P.
 
@@ -1495,7 +1625,7 @@ def sigma_skip(p):
 
 
 
-def sigma_sub(p, q):
+def sigma_sub(p: str, q: str):
     """
     Returns score of a substitution of P with Q.
 
@@ -1505,7 +1635,7 @@ def sigma_sub(p, q):
 
 
 
-def sigma_exp(p, q):
+def sigma_exp(p: str, q: str):
     """
     Returns score of an expansion/compression.
 
@@ -1517,7 +1647,7 @@ def sigma_exp(p, q):
 
 
 
-def delta(p, q):
+def delta(p: str, q: str):
     """
     Return weighted sum of difference between P and Q.
 
@@ -1531,7 +1661,7 @@ def delta(p, q):
 
 
 
-def diff(p, q, f):
+def diff(p: str, q: str, f: str):
     """
     Returns difference between phonetic segments P and Q for feature F.
 
@@ -1542,7 +1672,7 @@ def diff(p, q, f):
 
 
 
-def R(p, q):
+def R(p: str, q: str):
     """
     Return relevant features for segment comparsion.
 
@@ -1554,7 +1684,7 @@ def R(p, q):
 
 
 
-def V(p):
+def V(p: str):
     """
     Return vowel weight if P is vowel.
 

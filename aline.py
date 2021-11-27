@@ -1524,6 +1524,9 @@ def align(str1: str, str2: str, epsilon: Optional[float]=0):
     str2 = str2.replace('dʒ','ʤ')
     str1 = str1.replace('tʃ','ʧ')
     str2 = str2.replace('tʃ','ʧ')
+    str1 = str1.replace('ɫ','l')
+    str2 = str2.replace('ɫ','l')
+    
 
     m = len(str1)
     n = len(str2)

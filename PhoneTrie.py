@@ -89,6 +89,7 @@ class PhoneTrie:
         """
         input = input.replace('dʒ','ʤ')
         input = input.replace('tʃ','ʧ')
+        input = input.replace('ɫ','l')
         
         for c in input:
             if c not in aline.feature_matrix.keys():

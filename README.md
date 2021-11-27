@@ -29,9 +29,23 @@ And sentences will contain
 * 'frantic and desperately desperate to find his true push, and i 'd do anything for him'
 * 'beneath his hands and my two fingers trap ash's fingers'
 
-# Website Usage:
-```
+# Project Setup:
+```console
+$ <package manager> install git-lfs # (via homebrew, winget, apt-get, etc.)
+$ git clone https://github.com/Brennanium/MnemonicsRecommendation.git
 $ cd MnemonicsRecommendation
+$ git lfs pull
+$ pipenv install --python=<path/to/python@3.7/python3>
+$ # If necessary: $ <package manager> install python@3.7 # (via homebrew, winget, apt-get, etc.)
+$ # If necessary: $ pip install pipenv
+$ # If necessary: $ <package manager> install pipenv # (via homebrew, winget, apt-get, etc.)
+$ pipenv shell
+```
+
+# Website Usage:
+```console
+$ cd MnemonicsRecommendation
+$ pipenv shell # (if not already in virtual environment)
 $ flask run
 ```
 

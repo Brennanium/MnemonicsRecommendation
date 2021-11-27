@@ -90,10 +90,14 @@ class WWUTransphoner:
         """
         Return a list of mnemonics similar to the input word
 
-        :param   input_word: the input word for which to return mnemonics
-        :param  translation: translation for the input word (optional), (default None)
-        :param            N: number of mnemonics to return (default 5)
-        :returns           : a list of N mnemonic phrases/words
+        :param       input_word: the input word for which to return mnemonics
+        :param      translation: translation for the input word (optional), (default None)
+        :param                N: number of mnemonics to return (default 5)
+        :param   include-phones: whether to output phonetic information
+        :returns               : a list of N mnemonic phrases
+                            or : (a list of N mnemonic phrases, 
+                                  a list of corresponding phonetic data, 
+                                  the phonetic data of the input phrase)
         :raises    KeyError: raises when the input word's phones are not in the dictionary
         """
 

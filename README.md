@@ -58,10 +58,10 @@ and
 
 Phonetic Lists from:
 https://github.com/open-dict-data/ipa-dict#csv
-  French lists built from [gc-ipa](https://github.com/dohliam/qc-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
-  Japanese lists built from [edict](https://www.edrdg.org/jmdict/edict.html) ([CC BY-SA 3.0](https://creativecommons.org/licenses/by/4.0/))
-  English lists built from [cmudict-ipa](https://github.com/lingz/cmudict-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
-  German lists built from [germanipa](https://github.com/kdelaney/germanipa)
+French lists built from [gc-ipa](https://github.com/dohliam/qc-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
+Japanese lists built from [edict](https://www.edrdg.org/jmdict/edict.html) ([CC BY-SA 3.0](https://creativecommons.org/licenses/by/4.0/))
+English lists built from [cmudict-ipa](https://github.com/lingz/cmudict-ipa) ([MIT License](https://github.com/lingz/cmudict-ipa/blob/master/LICENSE))
+German lists built from [germanipa](https://github.com/kdelaney/germanipa)
 
 English age of aquisition ratings from Kuperman et all
 
@@ -79,5 +79,9 @@ Bird, Steven, Edward Loper and Ewan Klein (2009).
 Natural Language Processing with Python.  O'Reilly Media Inc.
 
 Kuperman, V., Stadthagen-Gonzalez, H. & Brysbaert, M. Age-of-acquisition ratings for 30,000 English words. Behav Res 44, 978–990 (2012). https://doi.org/10.3758/s13428-012-0210-4
+
+Wolf, Thomas et al. “Transformers: State-of-the-Art Natural Language Processing”. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations. Online: Association for Computational Linguistics, 2020. 38–45. Web.
+
+Savva, Manolis et al. “TransPhoner: Automated Mnemonic Keyword Generation”. CHI 2014 Conference Proceedings: ACM Conference on Human Factors in Computing Systems. N.p., 2014. Web.
 
 Yamada, Ikuya, et al. "Wikipedia2Vec: An efficient toolkit for learning and visualizing the embeddings of words and entities from Wikipedia." arXiv preprint arXiv:1812.06280 (2018).

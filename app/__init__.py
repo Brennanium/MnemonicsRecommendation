@@ -8,7 +8,7 @@ import sys
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 Bootstrap(app)
 app.config.from_object(Config)
 

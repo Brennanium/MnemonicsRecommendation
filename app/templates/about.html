@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 style="text-align: center; padding-top: 20px;">Mnemonic Recommendation System</h1>
+<p style="text-align:center; padding-top: 35px;">
+    <img src="{{url_for('static', filename='systemDiagram.jpg')}}" class="rounded" style="max-width: 50%; max-height: 50%; border: 2px; border-style:solid; border-color:#88bdbc; ">
+</p>
+<div style="padding: 45px;">
+<h3>About</h3>
+    <p>The purpose of the Mnemonic Recommendation System is to help users learn new languages by providing them with a mnemonic in order to memorize and learn new words. Currently, our system takes in a user supplied foreign language word, and produces mnemonics for aid in memorizing the supplied word. These mnemonics are similar to the input word semantically, orthographically, phonetically, and also are similar in imageability. Our system is also capable of using the generated mnemonics, or manually created mnemonics by the user, and building a sentence out of the mnemonic, for additional aid in memorization. The system utilizes OpenAI-GPT and DistilBERT techniques for building a sentence around an input mnemonic. The system can be repeatedly prompted for new sentences to find one that is helpful in memorization. For users who don’t desire to incorporate our system into their own, or desire a GUI, we have a web page/web server for additional ease of producing mnemonics.</p>
+    <h3>Contributers</h3>
+    <ul>
+        <li>Quinn Pedersen-Wilson</li>
+        <li>Megan Dittamore</li>
+        <li>Brennen Drew</li>
+        <li>Ayisha Olanrewaju</li>
+    </ul>
+    <h3>Links</h3>
+    <ul>
+        <li>
+            <a href="">Paper</a>
+        </li>
+        <li>
+            <a href="https://github.com/Brennanium/MnemonicsRecommendation">GitHub</a>
+        </li>
+        <li>
+            <a href="https://graphics.stanford.edu/projects/transphoner/">Original Paper</a>
+        </li> 
+    </ul>
+</div>
+{% endblock %}

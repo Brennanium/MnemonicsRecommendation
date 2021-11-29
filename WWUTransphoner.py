@@ -84,7 +84,7 @@ class WWUTransphoner:
         MatchList.semantic_multiplier = semantic
         MatchList.orthographic_multiplier = orthographic
 
-    
+
 
     def get_mnemonics(self, input_word: str, translation: Optional[str] = None, N: Optional[int]=5, include_phones: Optional[bool]=False) -> Union[List[str],Tuple[List[str],List[str],str]]:
         """
@@ -126,7 +126,7 @@ class WWUTransphoner:
                     match.is_fully_matched = True
                     match_list.add_match(match)
             working_matches = match_list.remove_and_retrieve_unfinished_matches(N)
-        
+
         if include_phones:
             words = [ match.matched_words for match in match_list.get_finished_matches(old_N) ]
             phones = [ "/" + match.matched_phones_raw.strip() + "/" for match in match_list.get_finished_matches(old_N) ]
@@ -200,7 +200,7 @@ class WWUTransphoner:
         """
 
         last_token = ''
-        for _ in range(random.randrange(0,8)):
+        for _ in range(random.randrange(3,8)):
             text = '[MASK] ' + incomplete_sentence
 
             input = self.bert_tokenizer.encode_plus(text, return_tensors = "pt")
@@ -211,7 +211,12 @@ class WWUTransphoner:
             mask_word = softmax[0, mask_index, :]
             predictions = torch.topk(mask_word, 10, dim=1)[1][0]
 
-            incomplete_sentence = self.bert_tokenizer.decode([predictions[0]]) + ' ' + incomplete_sentence
+            new_token = ""
+            for prediction in predictions:
+                temp_token = self.bert_tokenizer.decode([prediction])
+                if temp_token != '"':
+                    incomplete_sentence = temp_token + ' ' + incomplete_sentence
+                    break
 
         return incomplete_sentence
 
@@ -234,8 +239,3 @@ class WWUTransphoner:
 
         return complete_sentences
 
-a = WWUTransphoner("zh", "en")
-b = a.get_mnemonics("一味推托", N=10)
-print(b)
-c = a.gen_sentences(b)
-print(c)

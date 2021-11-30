@@ -95,8 +95,8 @@ class WWUTransphoner:
         :param                N: number of mnemonics to return (default 5)
         :param   include-phones: whether to output phonetic information
         :returns               : a list of N mnemonic phrases
-                            or : (a list of N mnemonic phrases, 
-                                  a list of corresponding phonetic data, 
+                            or : (a list of N mnemonic phrases,
+                                  a list of corresponding phonetic data,
                                   the phonetic data of the input phrase)
         :raises    KeyError: raises when the input word's phones are not in the dictionary
         """
@@ -158,18 +158,13 @@ class WWUTransphoner:
         # Encodes the input mnemonics into pytorch tensors
         encodings = []
         for input in input_mnemonics:
-            encodings.append(self.gpt_tokenizer.encode(input, return_tensors='pt')[0])
+            encodings.append(self.gpt_tokenizer.encode(input, return_tensors='pt'))
 
-        # Input mnemonics get encoded into different token lengths, and the model
-        # needs equal length inputs for all inputs in a batch so we seperate them out
-        # into batches of equal token length to speed up the generation
-        token_lenghts = { len(encoding) for encoding in encodings }
-        for lenght in token_lenghts:
-            curr_list = [encoding for encoding in encodings if len(encoding) == lenght]
-            outputs = self.gpt_model.generate(torch.stack(curr_list), max_length=15, do_sample=True)
-            for tensor in outputs:
-                decoded_text = self.gpt_tokenizer.decode(tensor, skip_special_tokens=True)
-                sentences.append(WWUTransphoner.trim_to_one_sentence(decoded_text))
+        # Generate model output and decode into text
+        for encoding in encodings:
+            outputs = self.gpt_model.generate(encoding, max_length=15, do_sample=True)
+            decoded_text = self.gpt_tokenizer.decode(outputs[0], skip_special_tokens=True)
+            sentences.append(WWUTransphoner.trim_to_one_sentence(decoded_text))
 
         return sentences
 
@@ -214,7 +209,7 @@ class WWUTransphoner:
             new_token = ""
             for prediction in predictions:
                 temp_token = self.bert_tokenizer.decode([prediction])
-                if temp_token != '"':
+                if temp_token != '"' and temp_token != '\'':
                     incomplete_sentence = temp_token + ' ' + incomplete_sentence
                     break
 
@@ -239,3 +234,8 @@ class WWUTransphoner:
 
         return complete_sentences
 
+a = WWUTransphoner('de', 'en')
+b = ['true push', 'troop ass']
+c = a.gen_sentences(b)
+for d in c:
+    print(d)

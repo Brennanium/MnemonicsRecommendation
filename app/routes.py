@@ -67,10 +67,6 @@ def getResults(form: inputForm):
     else:
         sentenceMatches = []
 
-    ##for testing
-    #wordMatches = ['this', 'is', 'a', 'test']
-    #sentenceMatches = ['sentence 1', 'sentence 2', 'sentence 3', 'sentence 4']
-
     return True
 
 
